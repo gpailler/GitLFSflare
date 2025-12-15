@@ -1,0 +1,39 @@
+{
+  "name": "gitlfsflare",
+  "version": "0.1.0",
+  "description": "Git LFS server on CloudFlare Workers with R2 storage",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:production": "wrangler dev --env production",
+    "deploy": "wrangler deploy",
+    "deploy:production": "wrangler deploy --env production",
+    "types": "wrangler types",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "git-lfs",
+    "cloudflare-workers",
+    "r2",
+    "github"
+  ],
+  "author": "Gregoire Pailler",
+  "license": "MIT",
+  "packageManager": "pnpm@10.23.0",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
+    "@cloudflare/vitest-pool-workers": "^0.10.15",
+    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/runner": "3.2.4",
+    "@vitest/snapshot": "3.2.4",
+    "typescript": "^5.9.3",
+    "vitest": "3.2.4",
+    "wrangler": "^4.54.0"
+  }
+}

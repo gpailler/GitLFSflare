@@ -259,8 +259,7 @@ if (response.status === 404) {
 | `ALLOWED_ORGS` | string | Comma-separated list of allowed organizations | `<org1>[,<org2>...]` |
 | `LFS_BUCKET` | R2Bucket | R2 bucket binding | (CloudFlare binding) |
 | `AUTH_CACHE` | KVNamespace | KV namespace for permission caching | (CloudFlare binding) |
-| `UPLOAD_URL_EXPIRY` | number | Upload URL lifetime (seconds) | `900` (15 min) |
-| `DOWNLOAD_URL_EXPIRY` | number | Download URL lifetime (seconds) | `3600` (1 hour) |
+| `URL_EXPIRY` | number | Pre-signed URL lifetime (seconds) | `900` (15 min) |
 | `AUTH_CACHE_TTL` | number | Permission cache TTL (seconds) | `300` (5 min) |
 | `CLOUDFLARE_ACCOUNT_ID` | string (secret) | For R2 endpoint URL | From CloudFlare dashboard |
 | `R2_ACCESS_KEY_ID` | string (secret) | R2 credentials | Auto-generated |
