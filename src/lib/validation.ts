@@ -1,19 +1,31 @@
-export function isValidOID(_oid: string): boolean {
-  // Stub: always returns false (tests will fail)
-  return false;
+const OID_REGEX = /^[0-9a-f]{64}$/;
+const ORG_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
+const MAX_ORG_LENGTH = 255;
+
+export function isValidOID(oid: string): boolean {
+  return OID_REGEX.test(oid);
 }
 
-export function isValidSize(_size: number): boolean {
-  // Stub: always returns false (tests will fail)
-  return false;
+export function isValidSize(size: number): boolean {
+  return Number.isInteger(size) && size >= 0;
 }
 
-export function validateOrganization(_env: Env, _org: string): boolean {
-  // Stub: always returns false (tests will fail)
-  return false;
+export function parseAllowedOrgs(allowedOrgs: string): string[] {
+  return allowedOrgs
+    .split(",")
+    .map((org) => org.trim())
+    .filter((org) => org.length > 0);
 }
 
-export function parseAllowedOrgs(_allowedOrgs: string): string[] {
-  // Stub: always returns empty array (tests will fail)
-  return [];
+export function validateOrganization(env: Env, org: string): boolean {
+  if (!org || org.length > MAX_ORG_LENGTH) {
+    return false;
+  }
+
+  if (!ORG_NAME_REGEX.test(org)) {
+    return false;
+  }
+
+  const allowedOrgs = parseAllowedOrgs(env.ALLOWED_ORGS);
+  return allowedOrgs.includes(org);
 }

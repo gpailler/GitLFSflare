@@ -4,32 +4,39 @@ export class HTTPError extends Error {
   readonly status: number;
   readonly code?: string;
 
-  constructor(_options: HTTPErrorOptions) {
-    // Stub: doesn't properly initialize (tests will fail)
-    super("");
-    this.status = 0;
-    this.code = undefined;
+  constructor(options: HTTPErrorOptions) {
+    super(options.message);
+    this.name = "HTTPError";
+    this.status = options.status;
+    this.code = options.code;
   }
 
   toResponse(): Response {
-    // Stub: returns empty response (tests will fail)
-    return new Response();
+    const body: { message: string; code?: string } = { message: this.message };
+    if (this.code) {
+      body.code = this.code;
+    }
+    return new Response(JSON.stringify(body), {
+      status: this.status,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 
 export class LFSError extends HTTPError {
-  constructor(_status: number, _message: string) {
-    // Stub: doesn't properly initialize (tests will fail)
-    super({ status: 0, message: "" });
+  constructor(status: number, message: string) {
+    super({ status, message });
+    this.name = "LFSError";
   }
 
   toLFSResponse(): Response {
-    // Stub: returns empty response (tests will fail)
-    return new Response();
+    return new Response(JSON.stringify(this.toJSON()), {
+      status: this.status,
+      headers: { "Content-Type": "application/vnd.git-lfs+json" },
+    });
   }
 
   toJSON(): LFSErrorResponse {
-    // Stub: returns empty object (tests will fail)
-    return { message: "" };
+    return { message: this.message };
   }
 }
