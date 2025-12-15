@@ -6,7 +6,7 @@ export default defineWorkersConfig({
     include: ["test/**/*.test.ts"],
     exclude: ["node_modules", "dist"],
     coverage: {
-      provider: "v8",
+      provider: "istanbul",
       reporter: ["text", "json", "html"],
       include: ["src/**/*.ts"],
       exclude: ["src/**/*.d.ts", "src/types/**/*.ts"],
