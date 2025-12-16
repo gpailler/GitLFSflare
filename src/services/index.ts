@@ -7,3 +7,5 @@ export {
   hasOperationPermission,
   mapGitHubPermissions,
 } from "./github.js";
+export type { ObjectExistsResult } from "./r2.js";
+export { generateDownloadUrl, generateObjectKey, generateUploadUrl, objectExists } from "./r2.js";
