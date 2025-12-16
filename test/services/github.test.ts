@@ -120,6 +120,23 @@ describe("getRepositoryPermission", () => {
       const result = await getRepositoryPermission("ghp_token", "org", "public-repo");
       expect(result).toBe("read");
     });
+
+    it("returns 'none' for private repository without permissions field", async () => {
+      fetchSpy.mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            id: 789,
+            name: "private-repo",
+            full_name: "org/private-repo",
+            private: true,
+          }),
+          { status: 200 }
+        )
+      );
+
+      const result = await getRepositoryPermission("ghp_token", "org", "private-repo");
+      expect(result).toBe("none");
+    });
   });
 
   describe("error responses", () => {

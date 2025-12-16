@@ -137,6 +137,7 @@ describe("extractToken", () => {
       "Bearer invalid_prefix",
       "Bearer ghp_invalid-chars",
       "Basic invalid",
+      `Basic ${btoa("user:not_a_github_token")}`,
     ])("extractToken with header '%s' returns null", (header) => {
       const request = createRequest(header);
       expect(extractToken(request)).toBeNull();
