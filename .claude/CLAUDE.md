@@ -100,7 +100,7 @@ Support the following Git LFS client auth formats:
 - `Authorization: Basic base64(user:token)` (Git HTTP)
 
 ### 3. Token Security
-- Only accept `ghp_` or `github_pat_` prefixes
+- Only accept `ghp_`, `github_pat_`, or `ghs_` (GitHub Actions) prefixes
 - Reject tokens >1000 chars (DoS prevention)
 - Only alphanumeric + underscore characters
 - **NEVER** log or expose tokens in errors
@@ -364,9 +364,30 @@ bash test/scripts/test-git-lfs.sh
 11. **Use test cases** - `it.each` to reduce test duplication
 12. **Optimize each phase** - Challenge yourself to meet highest quality standards
 
+## Git LFS Protocol Compliance
+
+This server MUST fully implement the [Git LFS API specification](https://github.com/git-lfs/git-lfs/blob/main/docs/api/README.md). Refer to the spec for:
+- HTTP status codes (request-level and per-object errors)
+- Error response format (`message`, optional `request_id`, optional `documentation_url`)
+- Required headers (`Accept`, `Content-Type`, `LFS-Authenticate`)
+- Batch API request/response structure
+
+### Rate Limiting Behavior
+- GitHub API rate limits are detected via `X-RateLimit-Remaining: 0` header or HTTP 429
+- When GitHub is rate limited, propagate as HTTP 429 to LFS client (never silently return "no permission")
+- Include `Retry-After` header when available from upstream
+
 ## Resources
 
-- [Git LFS Batch API Spec](https://github.com/git-lfs/git-lfs/blob/main/docs/api/batch.md)
+- **Git LFS Specification:**
+  - [Pointer/OID Spec](https://github.com/git-lfs/git-lfs/blob/main/docs/spec.md) - OID format, pointer files
+  - [API Overview](https://github.com/git-lfs/git-lfs/blob/main/docs/api/README.md)
+  - [Batch API](https://github.com/git-lfs/git-lfs/blob/main/docs/api/batch.md)
+  - [Authentication](https://github.com/git-lfs/git-lfs/blob/main/docs/api/authentication.md)
+  - [Basic Transfers](https://github.com/git-lfs/git-lfs/blob/main/docs/api/basic-transfers.md)
+  - [Server Discovery](https://github.com/git-lfs/git-lfs/blob/main/docs/api/server-discovery.md)
+  - [Request Schema](https://github.com/git-lfs/git-lfs/blob/main/tq/schemas/http-batch-request-schema.json)
+  - [Response Schema](https://github.com/git-lfs/git-lfs/blob/main/tq/schemas/http-batch-response-schema.json)
 - [GitHub API - Repository Permissions](https://docs.github.com/en/rest/repos/repos)
 - [CloudFlare Workers Docs](https://developers.cloudflare.com/workers/)
 - [CloudFlare R2 Docs](https://developers.cloudflare.com/r2/)
