@@ -1,4 +1,4 @@
-import type { GitHubRepository, PermissionLevel } from "../types/index.js";
+import type { GitHubRepository, LFSOperation, PermissionLevel } from "../types/index.js";
 
 export class GitHubRateLimitError extends Error {
   readonly resetAt?: number;
@@ -17,8 +17,6 @@ export interface GitHubPermissions {
   push: boolean;
   pull: boolean;
 }
-
-export type LFSOperation = "upload" | "download";
 
 export function mapGitHubPermissions(permissions: GitHubPermissions): PermissionLevel {
   if (permissions.admin) return "admin";
