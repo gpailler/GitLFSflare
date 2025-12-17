@@ -160,6 +160,44 @@ describe("LFS Service", () => {
         expect(result.valid).toBe(true);
       });
     });
+
+    describe("invalid hash_algo", () => {
+      it.each([
+        ["sha512", "sha512"],
+        ["md5", "md5"],
+        ["sha1", "sha1"],
+        ["empty string", ""],
+        ["arbitrary string", "invalid"],
+      ])("rejects %s hash algorithm", (_, hashAlgo) => {
+        const request: LFSBatchRequest = {
+          operation: "download",
+          objects: [{ oid: VALID_OID, size: VALID_SIZE }],
+          hash_algo: hashAlgo,
+        };
+        const result = validateBatchRequest(request);
+        expect(result.valid).toBe(false);
+        expect(result.error).toContain("sha256");
+      });
+
+      it("accepts undefined hash_algo (defaults to sha256)", () => {
+        const request: LFSBatchRequest = {
+          operation: "download",
+          objects: [{ oid: VALID_OID, size: VALID_SIZE }],
+        };
+        const result = validateBatchRequest(request);
+        expect(result.valid).toBe(true);
+      });
+
+      it("accepts explicit sha256 hash_algo", () => {
+        const request: LFSBatchRequest = {
+          operation: "download",
+          objects: [{ oid: VALID_OID, size: VALID_SIZE }],
+          hash_algo: "sha256",
+        };
+        const result = validateBatchRequest(request);
+        expect(result.valid).toBe(true);
+      });
+    });
   });
 
   describe("processDownloadObject", () => {

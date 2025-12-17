@@ -29,6 +29,10 @@ export function validateBatchRequest(request: LFSBatchRequest): ValidationResult
     return { valid: false, error: "Only basic transfer adapter is supported" };
   }
 
+  if (request.hash_algo !== undefined && request.hash_algo !== "sha256") {
+    return { valid: false, error: "Only sha256 hash algorithm is supported" };
+  }
+
   return { valid: true };
 }
 
