@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { extractToken } from "./services/auth.js";
+import { withCache } from "./services/cache.js";
 import { GitHubRateLimitError, getRepositoryPermission, hasOperationPermission } from "./services/github.js";
 import { processBatchRequest, validateBatchRequest } from "./services/lfs.js";
 import type { LFSBatchRequest } from "./types/index.js";
@@ -42,10 +43,11 @@ app.post("/:org/:repoGit/info/lfs/objects/batch", async (c) => {
     return lfsJson(c, { message: "Organization not allowed" }, 403);
   }
 
-  // 3. Get GitHub permission
+  // 3. Get GitHub permission (with caching)
+  const getCachedPermission = withCache(c.env, getRepositoryPermission);
   let permission: Awaited<ReturnType<typeof getRepositoryPermission>>;
   try {
-    permission = await getRepositoryPermission(token, org, repo);
+    permission = await getCachedPermission(token, org, repo);
   } catch (error) {
     if (error instanceof GitHubRateLimitError) {
       const retryAfter =

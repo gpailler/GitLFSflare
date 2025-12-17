@@ -35,12 +35,21 @@ const TEST_URL_EXPIRY = 600;
 const VALID_TOKEN = "ghp_validtoken123";
 const LFS_CONTENT_TYPE = "application/vnd.git-lfs+json";
 
+// Helper to create mock KV namespace for caching
+const createMockKV = () =>
+  ({
+    get: vi.fn(async () => null),
+    put: vi.fn(async () => {}),
+  }) as unknown as KVNamespace;
+
 // Helper to create mock environment
 const createMockEnv = (overrides: Record<string, unknown> = {}) =>
   ({
     ALLOWED_ORGS: TEST_ORG,
     URL_EXPIRY: String(TEST_URL_EXPIRY),
+    AUTH_CACHE_TTL: "300",
     LFS_BUCKET: {},
+    AUTH_CACHE: createMockKV(),
     ...overrides,
   }) as unknown as Env;
 
