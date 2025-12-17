@@ -27,7 +27,7 @@ const MOCK_SIGNED_URL = "https://r2.cloudflarestorage.com/bucket/object?signed";
 
 const createMockEnv = (overrides: Record<string, unknown> = {}) =>
   ({
-    URL_EXPIRY: String(TEST_URL_EXPIRY),
+    URL_EXPIRY: TEST_URL_EXPIRY,
     ...overrides,
   }) as unknown as Env;
 
@@ -496,7 +496,7 @@ describe("LFS Service", () => {
       });
 
       it("uses URL_EXPIRY from env for expires_in", async () => {
-        const customEnv = createMockEnv({ URL_EXPIRY: "3600" });
+        const customEnv = createMockEnv({ URL_EXPIRY: 3600 });
         const request: LFSBatchRequest = {
           operation: "download",
           objects: [{ oid: VALID_OID, size: VALID_SIZE }],

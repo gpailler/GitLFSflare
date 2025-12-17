@@ -32,8 +32,7 @@ export async function setCachedPermission(
   permission: PermissionLevel
 ): Promise<void> {
   const key = await generateCacheKey(token, org, repo);
-  const ttl = Number.parseInt(env.AUTH_CACHE_TTL, 10);
-  await env.AUTH_CACHE.put(key, permission, { expirationTtl: ttl });
+  await env.AUTH_CACHE.put(key, permission, { expirationTtl: env.AUTH_CACHE_TTL });
 }
 
 export function withCache(

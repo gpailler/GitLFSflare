@@ -21,7 +21,7 @@ function createMockKV(store: Map<string, string> = new Map()): KVNamespace {
 function createMockEnv(overrides: Record<string, unknown> = {}): Env {
   return {
     AUTH_CACHE: createMockKV(),
-    AUTH_CACHE_TTL: String(TEST_TTL),
+    AUTH_CACHE_TTL: TEST_TTL,
     ...overrides,
   } as unknown as Env;
 }
@@ -142,7 +142,7 @@ describe("cache service", () => {
     it("uses TTL from environment", async () => {
       const kv = createMockKV();
       const customTtl = 900;
-      const env = createMockEnv({ AUTH_CACHE: kv, AUTH_CACHE_TTL: String(customTtl) });
+      const env = createMockEnv({ AUTH_CACHE: kv, AUTH_CACHE_TTL: customTtl });
 
       await cache.setCachedPermission(env, TEST_TOKEN, TEST_ORG, TEST_REPO, "read");
 

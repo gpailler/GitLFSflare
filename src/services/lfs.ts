@@ -61,7 +61,6 @@ export async function processDownloadObject(
   }
 
   const url = await generateDownloadUrl(env, org, repo, obj.oid);
-  const expiresIn = Number.parseInt(env.URL_EXPIRY, 10);
 
   return {
     oid: obj.oid,
@@ -70,7 +69,7 @@ export async function processDownloadObject(
     actions: {
       download: {
         href: url,
-        expires_in: expiresIn,
+        expires_in: env.URL_EXPIRY,
       },
     },
   };
@@ -93,7 +92,6 @@ export async function processUploadObject(
   }
 
   const url = await generateUploadUrl(env, org, repo, obj.oid);
-  const expiresIn = Number.parseInt(env.URL_EXPIRY, 10);
 
   return {
     oid: obj.oid,
@@ -102,7 +100,7 @@ export async function processUploadObject(
     actions: {
       upload: {
         href: url,
-        expires_in: expiresIn,
+        expires_in: env.URL_EXPIRY,
       },
     },
   };

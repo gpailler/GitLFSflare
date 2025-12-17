@@ -17,7 +17,7 @@ describe("generateUploadUrl", () => {
     R2_ACCESS_KEY_ID: "test-access-key",
     R2_SECRET_ACCESS_KEY: "test-secret-key",
     R2_BUCKET_NAME: "test-bucket",
-    URL_EXPIRY: "600",
+    URL_EXPIRY: 600,
   } as unknown as Env;
 
   it("generates a valid pre-signed URL with correct structure", async () => {
@@ -40,7 +40,7 @@ describe("generateDownloadUrl", () => {
     R2_ACCESS_KEY_ID: "test-access-key",
     R2_SECRET_ACCESS_KEY: "test-secret-key",
     R2_BUCKET_NAME: "test-bucket",
-    URL_EXPIRY: "900",
+    URL_EXPIRY: 900,
   } as unknown as Env;
 
   it("generates a valid pre-signed URL with correct structure", async () => {

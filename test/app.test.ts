@@ -46,8 +46,8 @@ const createMockKV = () =>
 const createMockEnv = (overrides: Record<string, unknown> = {}) =>
   ({
     ALLOWED_ORGS: TEST_ORG,
-    URL_EXPIRY: String(TEST_URL_EXPIRY),
-    AUTH_CACHE_TTL: "300",
+    URL_EXPIRY: TEST_URL_EXPIRY,
+    AUTH_CACHE_TTL: 300,
     LFS_BUCKET: {},
     AUTH_CACHE: createMockKV(),
     ...overrides,

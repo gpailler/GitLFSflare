@@ -11,12 +11,10 @@ export function generateObjectKey(org: string, repo: string, oid: string): strin
 }
 
 async function generatePresignedUrl(env: Env, objectKey: string, method: "GET" | "PUT"): Promise<string> {
-  const expiry = Number.parseInt(env.URL_EXPIRY, 10);
-
   const url = new URL(
     `https://${env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/${env.R2_BUCKET_NAME}/${objectKey}`
   );
-  url.searchParams.set("X-Amz-Expires", String(expiry));
+  url.searchParams.set("X-Amz-Expires", String(env.URL_EXPIRY));
 
   const signer = new AwsV4Signer({
     accessKeyId: env.R2_ACCESS_KEY_ID,

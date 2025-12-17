@@ -22,8 +22,8 @@
   "vars": {
     "ENVIRONMENT": "staging",
     "ALLOWED_ORGS": "",
-    "URL_EXPIRY": "900",
-    "AUTH_CACHE_TTL": "300",
+    "URL_EXPIRY": 900,
+    "AUTH_CACHE_TTL": 300,
     "R2_BUCKET_NAME": "lfs-objects-staging"
   },
 
@@ -47,8 +47,8 @@
       "vars": {
         "ENVIRONMENT": "production",
         "ALLOWED_ORGS": "",
-        "URL_EXPIRY": "900",
-        "AUTH_CACHE_TTL": "300",
+        "URL_EXPIRY": 900,
+        "AUTH_CACHE_TTL": 300,
         "R2_BUCKET_NAME": "lfs-objects-production"
       }
     }
