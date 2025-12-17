@@ -11,6 +11,9 @@ importers:
       aws4fetch:
         specifier: ^1.0.20
         version: 1.0.20
+      hono:
+        specifier: ^4.11.1
+        version: 4.11.1
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.3.8
@@ -1027,6 +1030,10 @@ packages:
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
+
+  hono@4.11.1:
+    resolution: {integrity: sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg==}
+    engines: {node: '>=16.9.0'}
 
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
@@ -2226,6 +2233,8 @@ snapshots:
       path-scurry: 1.11.1
 
   has-flag@4.0.0: {}
+
+  hono@4.11.1: {}
 
   html-escaper@2.0.2: {}
 

@@ -1,5 +1,3 @@
-export default {
-  async fetch(): Promise<Response> {
-    return new Response("Git LFS Server");
-  },
-};
+import { app } from "./app.js";
+
+export default app;
