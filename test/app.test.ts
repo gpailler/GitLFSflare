@@ -346,6 +346,32 @@ describe("LFS Server Application", () => {
     });
   });
 
+  describe("Repository Name Validation", () => {
+    it.each([
+      [".hidden", "starts with period"],
+      ["a".repeat(101), "exceeds max length"],
+      ["repo:name", "contains colon"],
+      ["repo name", "contains space"],
+    ])("returns 400 for invalid repo name: %s (%s)", async (repo) => {
+      const request = createRequest({ repo });
+      const response = await app.fetch(request, env);
+
+      expect(response.status).toBe(400);
+      expect(response.headers.get("Content-Type")).toBe(LFS_CONTENT_TYPE);
+      expect(github.getRepositoryPermission).not.toHaveBeenCalled();
+    });
+
+    it("accepts valid repository names", async () => {
+      vi.mocked(github.getRepositoryPermission).mockResolvedValue("read");
+      vi.mocked(lfs.processBatchRequest).mockResolvedValue({ transfer: "basic", objects: [] });
+
+      const request = createRequest({ repo: "my-valid.repo_123" });
+      const response = await app.fetch(request, env);
+
+      expect(response.status).toBe(200);
+    });
+  });
+
   describe("Permission Checking", () => {
     describe("insufficient permissions", () => {
       it("returns 403 when user has no access to repository", async () => {

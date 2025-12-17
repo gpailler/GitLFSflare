@@ -1,1 +1,1 @@
-export { isValidOID, isValidSize, parseAllowedOrgs, validateOrganization } from "./validation.js";
+export { isValidOID, isValidSize, parseAllowedOrgs, validateOrganization, validateRepoName } from "./validation.js";

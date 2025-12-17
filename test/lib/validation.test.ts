@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { isValidOID, isValidSize, parseAllowedOrgs, validateOrganization } from "../../src/lib/validation.js";
+import {
+  isValidOID,
+  isValidSize,
+  parseAllowedOrgs,
+  validateOrganization,
+  validateRepoName,
+} from "../../src/lib/validation.js";
 
 const createMockEnv = (allowedOrgs: string): Env =>
   ({
@@ -152,6 +158,38 @@ describe("validateOrganization", () => {
       const env = createMockEnv("a".repeat(100));
       expect(validateOrganization(env, "a".repeat(100))).toBe(true);
       expect(validateOrganization(env, "a".repeat(256))).toBe(false);
+    });
+  });
+});
+
+describe("validateRepoName", () => {
+  describe("valid repo names", () => {
+    it.each([
+      ["my-repo", "alphanumeric with hyphen"],
+      ["my_repo", "alphanumeric with underscore"],
+      ["my.repo", "alphanumeric with period"],
+      ["MyRepo123", "mixed case with numbers"],
+      ["a", "single character"],
+      ["a".repeat(100), "max length (100 chars)"],
+    ])("returns true for '%s' (%s)", (repo) => {
+      expect(validateRepoName(repo)).toBe(true);
+    });
+  });
+
+  describe("invalid repo names", () => {
+    it.each([
+      ["", "empty string"],
+      [".hidden", "starts with period"],
+      ["repo/path", "contains slash"],
+      ["repo\\path", "contains backslash"],
+      ["repo:name", "contains colon"],
+      ["repo name", "contains space"],
+      ["repo\nname", "contains newline"],
+      ["a".repeat(101), "exceeds max length (101 chars)"],
+      ["repo/../other", "path traversal attempt"],
+      ["repo%2Fname", "URL encoded slash"],
+    ])("returns false for '%s' (%s)", (repo) => {
+      expect(validateRepoName(repo)).toBe(false);
     });
   });
 });

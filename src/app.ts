@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { validateOrganization } from "./lib/index.js";
+import { validateOrganization, validateRepoName } from "./lib/index.js";
 import { extractToken } from "./services/auth.js";
 import { withCache } from "./services/cache.js";
 import { GitHubRateLimitError, getRepositoryPermission, hasOperationPermission } from "./services/github.js";
@@ -39,7 +39,12 @@ app.post("/:org/:repoGit/info/lfs/objects/batch", async (c) => {
     return lfsJson(c, { message: "Organization not allowed" }, 403);
   }
 
-  // 3. Get GitHub permission (with caching)
+  // 3. Validate repository name format
+  if (!validateRepoName(repo)) {
+    return lfsJson(c, { message: "Invalid repository name" }, 400);
+  }
+
+  // 4. Get GitHub permission (with caching)
   const getCachedPermission = withCache(c.env, getRepositoryPermission);
   let permission: Awaited<ReturnType<typeof getRepositoryPermission>>;
   try {
@@ -60,12 +65,12 @@ app.post("/:org/:repoGit/info/lfs/objects/batch", async (c) => {
     return lfsJson(c, { message: "Internal server error" }, 500);
   }
 
-  // 4. Check permission level (no access)
+  // 5. Check permission level (no access)
   if (permission === "none") {
     return lfsJson(c, { message: "Access denied" }, 403);
   }
 
-  // 5. Parse request body
+  // 6. Parse request body
   let body: LFSBatchRequest;
   try {
     body = await c.req.json();
@@ -73,18 +78,18 @@ app.post("/:org/:repoGit/info/lfs/objects/batch", async (c) => {
     return lfsJson(c, { message: "Invalid JSON body" }, 422);
   }
 
-  // 6. Validate batch request
+  // 7. Validate batch request
   const validation = validateBatchRequest(body);
   if (!validation.valid) {
     return lfsJson(c, { message: validation.error }, 422);
   }
 
-  // 7. Check operation permission
+  // 8. Check operation permission
   if (!hasOperationPermission(permission, body.operation)) {
     return lfsJson(c, { message: "Insufficient permissions for this operation" }, 403);
   }
 
-  // 8. Process batch request
+  // 9. Process batch request
   const response = await processBatchRequest(c.env, org, repo, body);
   return lfsJson(c, response, 200);
 });
