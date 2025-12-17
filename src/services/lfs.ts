@@ -83,11 +83,18 @@ export async function processUploadObject(
 ): Promise<LFSObjectResponse> {
   const result = await objectExists(env, org, repo, obj.oid);
 
-  if (result.exists && result.size === obj.size) {
+  if (result.exists) {
+    if (result.size === obj.size) {
+      return {
+        oid: obj.oid,
+        size: obj.size,
+        authenticated: true,
+      };
+    }
     return {
       oid: obj.oid,
       size: obj.size,
-      authenticated: true,
+      error: { code: 422, message: "Object size mismatch" },
     };
   }
 

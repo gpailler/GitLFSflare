@@ -289,14 +289,17 @@ describe("LFS Service", () => {
       expect(result.error).toBeUndefined();
     });
 
-    it("returns upload action for existing object with different size", async () => {
+    it("returns 422 error for existing object with different size", async () => {
       const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
       vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: 2048 });
-      vi.mocked(r2.generateUploadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
       const result = await processUploadObject(env, TEST_ORG, TEST_REPO, obj);
 
-      expect(result.actions?.upload).toBeDefined();
+      expect(result.error).toEqual({
+        code: 422,
+        message: "Object size mismatch",
+      });
+      expect(result.actions).toBeUndefined();
     });
 
     it("calls objectExists with correct parameters", async () => {
