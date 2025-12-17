@@ -51,6 +51,7 @@ describe("generateDownloadUrl", () => {
     expect(url).toContain("https://test-account-id.r2.cloudflarestorage.com/test-bucket/");
     expect(url).toContain("myorg/myrepo/ef/");
     expect(params.get("X-Amz-Algorithm")).toBe("AWS4-HMAC-SHA256");
+    expect(params.get("X-Amz-Expires")).toBe("900");
     expect(params.get("X-Amz-Credential")).toMatch(/^test-access-key\/\d{8}\/auto\/s3\/aws4_request$/);
     expect(params.get("X-Amz-Signature")).toMatch(/^[a-f0-9]{64}$/);
   });

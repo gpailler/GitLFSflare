@@ -4,13 +4,6 @@ import { isValidOID, isValidSize, parseAllowedOrgs, validateOrganization } from 
 const createMockEnv = (allowedOrgs: string): Env =>
   ({
     ALLOWED_ORGS: allowedOrgs,
-    URL_EXPIRY: "900",
-    AUTH_CACHE_TTL: "300",
-    ENVIRONMENT: "staging",
-    R2_BUCKET_NAME: "lfs-objects-staging",
-    CLOUDFLARE_ACCOUNT_ID: "test-account",
-    R2_ACCESS_KEY_ID: "test-key",
-    R2_SECRET_ACCESS_KEY: "test-secret",
   }) as Env;
 
 describe("isValidOID", () => {
