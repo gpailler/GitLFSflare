@@ -66,6 +66,7 @@ export async function processDownloadObject(
   return {
     oid: obj.oid,
     size: obj.size,
+    authenticated: true,
     actions: {
       download: {
         href: url,
@@ -87,6 +88,7 @@ export async function processUploadObject(
     return {
       oid: obj.oid,
       size: obj.size,
+      authenticated: true,
     };
   }
 
@@ -96,6 +98,7 @@ export async function processUploadObject(
   return {
     oid: obj.oid,
     size: obj.size,
+    authenticated: true,
     actions: {
       upload: {
         href: url,

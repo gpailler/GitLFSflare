@@ -212,6 +212,7 @@ describe("LFS Service", () => {
 
       expect(result.oid).toBe(VALID_OID);
       expect(result.size).toBe(VALID_SIZE);
+      expect(result.authenticated).toBe(true);
       expect(result.actions?.download).toBeDefined();
       expect(result.actions?.download?.href).toBe(MOCK_SIGNED_URL);
       expect(result.actions?.download?.expires_in).toBe(TEST_URL_EXPIRY);
@@ -268,6 +269,7 @@ describe("LFS Service", () => {
 
       expect(result.oid).toBe(VALID_OID);
       expect(result.size).toBe(VALID_SIZE);
+      expect(result.authenticated).toBe(true);
       expect(result.actions?.upload).toBeDefined();
       expect(result.actions?.upload?.href).toBe(MOCK_SIGNED_URL);
       expect(result.actions?.upload?.expires_in).toBe(TEST_URL_EXPIRY);
@@ -282,6 +284,7 @@ describe("LFS Service", () => {
 
       expect(result.oid).toBe(VALID_OID);
       expect(result.size).toBe(VALID_SIZE);
+      expect(result.authenticated).toBe(true);
       expect(result.actions).toBeUndefined();
       expect(result.error).toBeUndefined();
     });
