@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { validateOrganization } from "./lib/index.js";
 import { extractToken } from "./services/auth.js";
 import { withCache } from "./services/cache.js";
 import { GitHubRateLimitError, getRepositoryPermission, hasOperationPermission } from "./services/github.js";
@@ -13,11 +14,6 @@ function lfsJson(c: { json: (data: unknown, status?: number) => Response }, data
   const response = c.json(data, status);
   response.headers.set("Content-Type", LFS_CONTENT_TYPE);
   return response;
-}
-
-function isOrganizationAllowed(env: Env, org: string): boolean {
-  const allowedOrgs = env.ALLOWED_ORGS.split(",").map((o) => o.trim());
-  return allowedOrgs.includes(org);
 }
 
 // Health check endpoint
@@ -38,8 +34,8 @@ app.post("/:org/:repoGit/info/lfs/objects/batch", async (c) => {
     return response;
   }
 
-  // 2. Validate organization
-  if (!isOrganizationAllowed(c.env, org)) {
+  // 2. Validate organization (format + allowlist)
+  if (!validateOrganization(c.env, org)) {
     return lfsJson(c, { message: "Organization not allowed" }, 403);
   }
 
