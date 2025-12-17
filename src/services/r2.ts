@@ -32,13 +32,7 @@ async function generatePresignedUrl(env: Env, objectKey: string, method: "GET" |
   return signedRequest.url.toString();
 }
 
-export async function generateUploadUrl(
-  env: Env,
-  org: string,
-  repo: string,
-  oid: string,
-  _size: number
-): Promise<string> {
+export async function generateUploadUrl(env: Env, org: string, repo: string, oid: string): Promise<string> {
   const objectKey = generateObjectKey(org, repo, oid);
   return generatePresignedUrl(env, objectKey, "PUT");
 }

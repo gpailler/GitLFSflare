@@ -22,7 +22,7 @@ describe("generateUploadUrl", () => {
 
   it("generates a valid pre-signed URL with correct structure", async () => {
     const oid = `cd${"0".repeat(62)}`;
-    const url = await generateUploadUrl(mockEnv, "myorg", "myrepo", oid, 1024);
+    const url = await generateUploadUrl(mockEnv, "myorg", "myrepo", oid);
     const params = new URL(url).searchParams;
 
     expect(url).toContain("https://test-account-id.r2.cloudflarestorage.com/test-bucket/");

@@ -92,7 +92,7 @@ export async function processUploadObject(
     };
   }
 
-  const url = await generateUploadUrl(env, org, repo, obj.oid, obj.size);
+  const url = await generateUploadUrl(env, org, repo, obj.oid);
   const expiresIn = Number.parseInt(env.URL_EXPIRY, 10);
 
   return {
