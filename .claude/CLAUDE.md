@@ -53,23 +53,25 @@ You are building a **production-ready Git LFS (Large File Storage) server** on C
 ┌─────────────────────┐
 │ Cloudflare Worker   │
 │  ┌───────────────┐  │
-│  │ 1. Validate   │  │  Step 1: Organization validation (MANDATORY)
-│  │    Org        │  │  → HTTP 403 if org not in ALLOWED_ORGS list
+│  │ 1. Extract &  │  │  Step 1: Extract & validate GitHub token
+│  │    Validate   │  │  → Supports Bearer, Basic auth
+│  │    Token      │  │  → HTTP 401 if missing/invalid
 │  └───────┬───────┘  │
 │          ↓          │
-│  ┌───────────────┐  │  Step 2: Extract & validate GitHub token
-│  │ 2. Parse PAT  │  │  → Supports Bearer, Basic auth
-│  └───────┬───────┘  │  → HTTP 401 if invalid
+│  ┌───────────────┐  │  Step 2: Validate org & repo format
+│  │ 2. Validate   │  │  → HTTP 403 if org not in ALLOWED_ORGS
+│  │    Org/Repo   │  │  → HTTP 400 if invalid repo name
+│  └───────┬───────┘  │
 │          ↓          │
 │  ┌───────────────┐  │  Step 3: Check GitHub permissions (with caching)
 │  │ 3. Check GH   │──┼──→ GitHub API: GET /repos/{org}/{repo}
 │  │    Permissions│  │  → Cache result for 5 minutes
 │  └───────┬───────┘  │  → HTTP 403 if no access
 │          ↓          │
-│  ┌───────────────┐  │  Step 4: Operation-specific permission check
-│  │ 4. Generate   │  │  → Upload requires write/admin
-│  │    Pre-signed │  │  → Download requires read/write/admin
-│  │    URLs       │  │
+│  ┌───────────────┐  │  Step 4: Validate & process batch request
+│  │ 4. Process    │  │  → Validate operation, objects, OID format
+│  │    Batch      │  │  → Check operation-specific permissions
+│  │    Request    │  │  → Generate pre-signed URLs
 │  └───────┬───────┘  │
 │          │          │
 └──────────┼──────────┘
@@ -84,15 +86,25 @@ You are building a **production-ready Git LFS (Large File Storage) server** on C
 
 ## Critical Design Decisions
 
-### 1. Organization Validation FIRST
+### 1. Token Validation First, Then Org/Repo
 ```typescript
-// ALWAYS validate org BEFORE calling GitHub API
+// 1. Extract and validate token format first
+const token = extractToken(request);
+if (!token) return HTTP 401 "Authentication required"
+
+// 2. Validate org against allowlist (before GitHub API)
 if (!validateOrganization(env, org)) {
-  return HTTP 403 "Organization not allowed."
+  return HTTP 403 "Organization not allowed"
 }
-// ONLY THEN call GitHub API
+
+// 3. Validate repo name format
+if (!validateRepoName(repo)) {
+  return HTTP 400 "Invalid repository name"
+}
+
+// 4. THEN call GitHub API for permission check
 ```
-**Why**: Prevents quota waste, fail fast, security boundary
+**Why**: Return 401 for auth issues before 403 for org issues. Validate org before expensive GitHub API calls.
 
 ### 2. Authentication Formats
 Support the following Git LFS client auth formats:
@@ -351,7 +363,7 @@ bash test/scripts/test-git-lfs.sh
 
 ## Critical Reminders
 
-1. **Organization validation ALWAYS comes first** - Before GitHub API calls
+1. **Validate token format first, org/repo before GitHub API** - Return 401 before 403, validate org before expensive API calls
 2. **Never log tokens** - In errors, console, or anywhere
 3. **Write tests first** - TDD is mandatory, implement stubs before tests
 4. **Security over convenience** - Validate all inputs, minimal error messages
