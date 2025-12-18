@@ -212,9 +212,7 @@ describe("getRepositoryPermission", () => {
     });
 
     it("throws error for invalid response format", async () => {
-      fetchSpy.mockResolvedValueOnce(
-        new Response(JSON.stringify({ unexpected: "format" }), { status: 200 })
-      );
+      fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify({ unexpected: "format" }), { status: 200 }));
 
       await expect(getRepositoryPermission("ghp_token", "org", "repo")).rejects.toThrow(
         "GitHub API error: invalid response"
