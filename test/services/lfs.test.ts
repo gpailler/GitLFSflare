@@ -102,7 +102,10 @@ describe("LFS Service", () => {
     });
 
     describe("batch size limit", () => {
-      it.each(["download", "upload"] as const)("rejects %s batch with more than 100 objects with status 413", (operation) => {
+      it.each([
+        "download",
+        "upload",
+      ] as const)("rejects %s batch with more than 100 objects with status 413", (operation) => {
         const objects = Array.from({ length: 101 }, (_, i) => ({
           oid: `${i.toString(16).padStart(4, "0")}${"a".repeat(60)}`,
           size: VALID_SIZE,
