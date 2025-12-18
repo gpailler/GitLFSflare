@@ -54,11 +54,14 @@ export function hasOperationPermission(permission: PermissionLevel, operation: L
 }
 
 export async function getRepositoryPermission(token: string, org: string, repo: string): Promise<PermissionLevel> {
-  const response = await fetch(`https://api.github.com/repos/${org}/${repo}`, {
+  const url = `https://api.github.com/repos/${org}/${repo}`;
+
+  const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
+      "User-Agent": "GitLFSflare",
     },
   });
 
