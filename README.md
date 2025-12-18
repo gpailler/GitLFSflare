@@ -71,10 +71,18 @@ Or add to `.lfsconfig`:
 
 ### GitHub Token Setup
 
-Create a GitHub Personal Access Token with `repo` scope:
+Create a GitHub Personal Access Token using one of these methods:
 
-1. Go to GitHub Settings > Developer settings > Personal access tokens
-2. Generate new token (classic) with `repo` scope
+**Option 1: Fine-grained token (recommended)**
+1. Go to GitHub Settings > Developer settings > Personal access tokens > Fine-grained tokens
+2. Generate new token with:
+   - **Repository access**: Select "Only select repositories" and choose the repositories you need
+   - **Permissions**: Metadata (read-only) - this is sufficient for repository permission checks
+3. Use the token as password when Git prompts for credentials
+
+**Option 2: Classic token**
+1. Go to GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)
+2. Generate new token with `repo` scope
 3. Use the token as password when Git prompts for credentials
 
 Supported token formats: `ghp_*`, `github_pat_*`, `ghs_*`
