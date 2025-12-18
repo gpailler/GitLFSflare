@@ -53,14 +53,6 @@ pnpm lint:fix
 pnpm format
 ```
 
-### Local Development Server
-
-```bash
-pnpm dev
-```
-
-This starts a local Wrangler dev server at `http://localhost:8787`.
-
 ## Coding Standards
 
 ### TypeScript

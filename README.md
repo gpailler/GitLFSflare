@@ -19,13 +19,9 @@ git clone https://github.com/your-org/gitlfsflare.git
 cd gitlfsflare
 pnpm install
 pnpm test
-
-# Set allowed orgs before running dev server
-echo 'ALLOWED_ORGS=your-github-org' > .dev.vars
-pnpm dev
 ```
 
-See [Prerequisites](docs/DEPLOYMENT.md#prerequisites) for required tools.
+See [Deployment Guide](docs/DEPLOYMENT.md) for full setup and deployment instructions.
 
 ## Configuration
 

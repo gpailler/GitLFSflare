@@ -328,9 +328,6 @@ pnpm install
 # Run tests in watch mode
 pnpm test
 
-# Run local dev server
-pnpm dev
-
 # Type checking
 pnpm typecheck
 

@@ -4,8 +4,6 @@
   "description": "Git LFS server on Cloudflare Workers with R2 storage",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "dev:production": "wrangler dev --env production",
     "deploy": "wrangler deploy",
     "deploy:production": "wrangler deploy --env production",
     "types": "wrangler types",
