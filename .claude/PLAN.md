@@ -2,7 +2,7 @@
 
 ## Overview
 
-This plan provides a structured approach to build a production-ready Git LFS server on CloudFlare Workers with R2 storage from scratch. The implementation prioritizes test-driven development, security, and clean architecture.
+This plan provides a structured approach to build a production-ready Git LFS server on Cloudflare Workers with R2 storage from scratch. The implementation prioritizes test-driven development, security, and clean architecture.
 
 ## Technology Stack
 
@@ -177,7 +177,7 @@ This file maintains continuity across sessions. Always read it at the start of a
    - Hono for runtime
    - Vitest, @cloudflare/vitest-pool-workers for testing
    - Biome for code quality
-   - TypeScript, Wrangler for CloudFlare
+   - TypeScript, Wrangler for Cloudflare
    - aws4fetch for R2 signing
 3. Configure TypeScript (strict mode, path aliases)
 4. Configure Vitest (Workers pool, coverage 90%+)
@@ -284,7 +284,7 @@ This file maintains continuity across sessions. Always read it at the start of a
 - Size verification
 - AWS Signature V4 parameters
 - Different OIDs generate different URLs
-- CloudFlare account ID and bucket name in URLs
+- Cloudflare account ID and bucket name in URLs
 - Environment-specific bucket names
 
 #### Step 3b: Implement After Approval
@@ -405,7 +405,7 @@ This file maintains continuity across sessions. Always read it at the start of a
 **Files to create**:
 - `README.md` - Project overview, quick start, usage
 - `docs/ARCHITECTURE.md` - System design, data flow, decisions
-- `docs/DEPLOYMENT.md` - CloudFlare deployment guide (staging and production)
+- `docs/DEPLOYMENT.md` - Cloudflare deployment guide (staging and production)
 - `docs/CONTRIBUTING.md` - Development guide, testing
 
 **Content Structure**:
@@ -430,7 +430,7 @@ This file maintains continuity across sessions. Always read it at the start of a
 
 #### DEPLOYMENT.md
 - Prerequisites
-- CloudFlare setup (KV namespace creation for cache)
+- Cloudflare setup (KV namespace creation for cache)
 - R2 bucket creation (staging and production)
 - Environment variables (ALLOWED_ORGS, AUTH_CACHE, ENVIRONMENT)
 - Wrangler configuration (staging and production)

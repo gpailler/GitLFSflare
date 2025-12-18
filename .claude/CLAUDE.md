@@ -2,13 +2,13 @@
 
 ## Project Overview
 
-You are building a **production-ready Git LFS (Large File Storage) server** on CloudFlare Workers with R2 storage. This server authenticates via GitHub API and generates pre-signed URLs for direct client-to-R2 transfers (no proxy).
+You are building a **production-ready Git LFS (Large File Storage) server** on Cloudflare Workers with R2 storage. This server authenticates via GitHub API and generates pre-signed URLs for direct client-to-R2 transfers (no proxy).
 
 ## Core Requirements
 
 ### Functional Requirements
-1. **CloudFlare Workers** serverless runtime (TypeScript)
-2. **CloudFlare R2** object storage backend
+1. **Cloudflare Workers** serverless runtime (TypeScript)
+2. **Cloudflare R2** object storage backend
 3. **GitHub PAT authentication** - Validate user permissions via GitHub API
 4. **Pre-signed URLs** - Direct client-to-R2 uploads/downloads (no server proxy)
 5. **Organization enforcement** - Validate against list of allowed organizations before GitHub API calls
@@ -30,14 +30,14 @@ You are building a **production-ready Git LFS (Large File Storage) server** on C
 
 | Component | Tool | Purpose |
 |-----------|------|---------|
-| **Runtime** | CloudFlare Workers | Serverless execution |
-| **Storage** | CloudFlare R2 | Object storage |
-| **Cache** | CloudFlare KV | Permission caching |
+| **Runtime** | Cloudflare Workers | Serverless execution |
+| **Storage** | Cloudflare R2 | Object storage |
+| **Cache** | Cloudflare KV | Permission caching |
 | **Language** | TypeScript | Type-safe development |
 | **Testing** | Vitest | Test framework |
 | **Test Runner** | @cloudflare/vitest-pool-workers | Workers runtime testing |
 | **Code Quality** | Biome | Linting + formatting |
-| **Build/Deploy** | Wrangler | CloudFlare CLI |
+| **Build/Deploy** | Wrangler | Cloudflare CLI |
 | **Package Manager** | pnpm | Fast, efficient |
 | **AWS Signing** | aws4fetch | Pre-signed URL generation |
 | **Requests handling** | Hono | Request handling + validation |
@@ -51,7 +51,7 @@ You are building a **production-ready Git LFS (Large File Storage) server** on C
        │ LFS Batch Request (with GitHub token)
        ↓
 ┌─────────────────────┐
-│ CloudFlare Worker   │
+│ Cloudflare Worker   │
 │  ┌───────────────┐  │
 │  │ 1. Validate   │  │  Step 1: Organization validation (MANDATORY)
 │  │    Org        │  │  → HTTP 403 if org not in ALLOWED_ORGS list
@@ -76,7 +76,7 @@ You are building a **production-ready Git LFS (Large File Storage) server** on C
            │ Pre-signed URLs
            ↓
     ┌─────────────┐
-    │ CloudFlare  │
+    │ Cloudflare  │
     │     R2      │  Direct client access
     │  Storage    │  (no Worker proxy)
     └─────────────┘
@@ -257,11 +257,11 @@ if (response.status === 404) {
 | Variable | Type | Description | Example |
 |----------|------|-------------|---------|
 | `ALLOWED_ORGS` | string | Comma-separated list of allowed organizations | `<org1>[,<org2>...]` |
-| `LFS_BUCKET` | R2Bucket | R2 bucket binding | (CloudFlare binding) |
-| `AUTH_CACHE` | KVNamespace | KV namespace for permission caching | (CloudFlare binding) |
+| `LFS_BUCKET` | R2Bucket | R2 bucket binding | (Cloudflare binding) |
+| `AUTH_CACHE` | KVNamespace | KV namespace for permission caching | (Cloudflare binding) |
 | `URL_EXPIRY` | number | Pre-signed URL lifetime (seconds) | `900` (15 min) |
 | `AUTH_CACHE_TTL` | number | Permission cache TTL (seconds) | `300` (5 min) |
-| `CLOUDFLARE_ACCOUNT_ID` | string (secret) | For R2 endpoint URL | From CloudFlare dashboard |
+| `CLOUDFLARE_ACCOUNT_ID` | string (secret) | For R2 endpoint URL | From Cloudflare dashboard |
 | `R2_ACCESS_KEY_ID` | string (secret) | R2 credentials | Auto-generated |
 | `R2_SECRET_ACCESS_KEY` | string (secret) | R2 credentials | Auto-generated |
 | `R2_BUCKET_NAME` | string | R2 bucket name | `lfs-objects-staging` or `lfs-objects-production` |
@@ -389,8 +389,8 @@ This server MUST fully implement the [Git LFS API specification](https://github.
   - [Request Schema](https://github.com/git-lfs/git-lfs/blob/main/tq/schemas/http-batch-request-schema.json)
   - [Response Schema](https://github.com/git-lfs/git-lfs/blob/main/tq/schemas/http-batch-response-schema.json)
 - [GitHub API - Repository Permissions](https://docs.github.com/en/rest/repos/repos)
-- [CloudFlare Workers Docs](https://developers.cloudflare.com/workers/)
-- [CloudFlare R2 Docs](https://developers.cloudflare.com/r2/)
+- [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/)
+- [Cloudflare R2 Docs](https://developers.cloudflare.com/r2/)
 - [Vitest Documentation](https://vitest.dev/)
 - [Hono Framework](https://hono.dev/)
 
