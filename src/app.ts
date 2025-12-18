@@ -81,7 +81,7 @@ app.post("/:org/:repoGit/info/lfs/objects/batch", async (c) => {
   // 7. Validate batch request
   const validation = validateBatchRequest(body);
   if (!validation.valid) {
-    return lfsJson(c, { message: validation.error }, 422);
+    return lfsJson(c, { message: validation.error }, validation.status);
   }
 
   // 8. Check operation permission

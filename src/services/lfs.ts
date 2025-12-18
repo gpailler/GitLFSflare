@@ -2,35 +2,42 @@ import { isValidOID, isValidSize } from "../lib/validation.js";
 import type { LFSBatchRequest, LFSBatchResponse, LFSObjectRequest, LFSObjectResponse } from "../types/index.js";
 import { generateDownloadUrl, generateUploadUrl, objectExists } from "./r2.js";
 
+export const MAX_BATCH_OBJECTS = 100;
+
 export interface ValidationResult {
   valid: boolean;
   error?: string;
+  status?: number;
 }
 
 export function validateBatchRequest(request: LFSBatchRequest): ValidationResult {
   if (request.operation !== "download" && request.operation !== "upload") {
-    return { valid: false, error: "Invalid operation" };
+    return { valid: false, error: "Invalid operation", status: 422 };
   }
 
   if (!Array.isArray(request.objects) || request.objects.length === 0) {
-    return { valid: false, error: "Objects array is required and must not be empty" };
+    return { valid: false, error: "Objects array is required and must not be empty", status: 422 };
+  }
+
+  if (request.objects.length > MAX_BATCH_OBJECTS) {
+    return { valid: false, error: "Batch request contains too many objects", status: 413 };
   }
 
   for (const obj of request.objects) {
     if (!isValidOID(obj.oid)) {
-      return { valid: false, error: "Invalid OID format" };
+      return { valid: false, error: "Invalid OID format", status: 422 };
     }
     if (!isValidSize(obj.size)) {
-      return { valid: false, error: "Invalid size" };
+      return { valid: false, error: "Invalid size", status: 422 };
     }
   }
 
   if (request.transfers && !request.transfers.includes("basic")) {
-    return { valid: false, error: "Only basic transfer adapter is supported" };
+    return { valid: false, error: "Only basic transfer adapter is supported", status: 422 };
   }
 
   if (request.hash_algo !== undefined && request.hash_algo !== "sha256") {
-    return { valid: false, error: "Only sha256 hash algorithm is supported" };
+    return { valid: false, error: "Only sha256 hash algorithm is supported", status: 422 };
   }
 
   return { valid: true };

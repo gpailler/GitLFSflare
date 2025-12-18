@@ -459,10 +459,29 @@ describe("LFS Server Application", () => {
   });
 
   describe("Request Validation", () => {
+    describe("batch size limits", () => {
+      it.each(["download", "upload"] as const)("returns 413 for %s with more than 100 objects", async (operation) => {
+        vi.mocked(github.getRepositoryPermission).mockResolvedValue("write");
+        vi.mocked(lfs.validateBatchRequest).mockReturnValue({
+          valid: false,
+          error: "Batch request contains too many objects",
+          status: 413,
+        });
+
+        const request = createRequest({ body: { operation, objects: [] } });
+        const response = await app.fetch(request, env);
+
+        expect(response.status).toBe(413);
+        expect(response.headers.get("Content-Type")).toBe(LFS_CONTENT_TYPE);
+        const body = (await response.json()) as Record<string, unknown>;
+        expect(body.message).toContain("too many objects");
+      });
+    });
+
     describe("invalid batch request", () => {
       it("returns 422 for invalid operation", async () => {
         vi.mocked(github.getRepositoryPermission).mockResolvedValue("read");
-        vi.mocked(lfs.validateBatchRequest).mockReturnValue({ valid: false, error: "Invalid operation" });
+        vi.mocked(lfs.validateBatchRequest).mockReturnValue({ valid: false, error: "Invalid operation", status: 422 });
 
         const request = createRequest({ body: { operation: "invalid", objects: [] } });
         const response = await app.fetch(request, env);
@@ -476,6 +495,7 @@ describe("LFS Server Application", () => {
         vi.mocked(lfs.validateBatchRequest).mockReturnValue({
           valid: false,
           error: "Objects array is required",
+          status: 422,
         });
 
         const request = createRequest({ body: { operation: "download" } });

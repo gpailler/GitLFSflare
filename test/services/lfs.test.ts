@@ -101,6 +101,32 @@ describe("LFS Service", () => {
       });
     });
 
+    describe("batch size limit", () => {
+      it.each(["download", "upload"] as const)("rejects %s batch with more than 100 objects with status 413", (operation) => {
+        const objects = Array.from({ length: 101 }, (_, i) => ({
+          oid: `${i.toString(16).padStart(4, "0")}${"a".repeat(60)}`,
+          size: VALID_SIZE,
+        }));
+        const request: LFSBatchRequest = { operation, objects };
+        const result = validateBatchRequest(request);
+
+        expect(result.valid).toBe(false);
+        expect(result.error).toContain("too many objects");
+        expect(result.status).toBe(413);
+      });
+
+      it.each(["download", "upload"] as const)("accepts %s batch with exactly 100 objects", (operation) => {
+        const objects = Array.from({ length: 100 }, (_, i) => ({
+          oid: `${i.toString(16).padStart(4, "0")}${"a".repeat(60)}`,
+          size: VALID_SIZE,
+        }));
+        const request: LFSBatchRequest = { operation, objects };
+        const result = validateBatchRequest(request);
+
+        expect(result.valid).toBe(true);
+      });
+    });
+
     describe("invalid object OID", () => {
       it.each([
         ["missing oid", undefined],
