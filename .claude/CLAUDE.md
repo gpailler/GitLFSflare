@@ -141,11 +141,13 @@ Purpose:
   "transfer": "basic",
   "objects": [
     { "oid": "...", "size": 1024, "actions": {...} },
-    { "oid": "...", "size": 2048, "error": {"code": 404, "message": "..."} }
+    { "oid": "...", "size": 2048, "error": {"code": 422, "message": "Size mismatch"} }
   ]
 }
 ```
 **Why**: Partial failures handled gracefully, batch operations don't fail completely
+
+**Note**: Downloads always return pre-signed URLs (no HEAD check for performance). Clients handle 404s from R2 directly. Per-object errors apply to uploads (e.g., size mismatch).
 
 ### 7. Permission Hierarchy
 ```
@@ -295,13 +297,13 @@ async function handleBatchRequest(
 
 ### Error as Data
 ```typescript
-// ✅ Errors are part of response data, not thrown
+// ✅ Errors are part of response data, not thrown (applies to uploads)
 {
   oid: "abc123...",
   size: 1024,
   error: {
-    code: 404,
-    message: "Object not found"
+    code: 422,
+    message: "Size mismatch"
   }
 }
 ```

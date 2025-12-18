@@ -159,11 +159,13 @@ Batch requests return per-object errors without failing the entire request:
 {
   "transfer": "basic",
   "objects": [
-    { "oid": "abc...", "size": 1024, "actions": { "download": {...} } },
-    { "oid": "def...", "size": 2048, "error": { "code": 404, "message": "Object not found" } }
+    { "oid": "abc...", "size": 1024, "actions": { "upload": {...} } },
+    { "oid": "def...", "size": 2048, "error": { "code": 422, "message": "Size mismatch" } }
   ]
 }
 ```
+
+**Note:** Downloads always return pre-signed URLs without checking object existence (performance optimization). Clients handle 404s directly from R2. Upload operations check object existence and may return per-object errors (e.g., size mismatch).
 
 ## Security Model
 

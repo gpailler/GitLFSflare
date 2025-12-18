@@ -233,9 +233,8 @@ describe("LFS Service", () => {
   describe("processDownloadObject", () => {
     const env = createMockEnv();
 
-    it("returns download action for existing object", async () => {
+    it("always returns download action with pre-signed URL", async () => {
       const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
-      vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: VALID_SIZE });
       vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
       const result = await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
@@ -249,56 +248,26 @@ describe("LFS Service", () => {
       expect(result.error).toBeUndefined();
     });
 
-    it("returns 404 error for non-existent object", async () => {
+    it("does not call objectExists (HEAD check skipped for performance)", async () => {
       const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
-      vi.mocked(r2.objectExists).mockResolvedValue({ exists: false });
-
-      const result = await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
-
-      expect(result.oid).toBe(VALID_OID);
-      expect(result.size).toBe(VALID_SIZE);
-      expect(result.actions).toBeUndefined();
-      expect(result.error).toEqual({
-        code: 404,
-        message: "Object not found",
-      });
-    });
-
-    it("returns 422 error for size mismatch", async () => {
-      const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
-      vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: 2048 });
-
-      const result = await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
-
-      expect(result.error).toEqual({
-        code: 422,
-        message: "Object size mismatch",
-      });
-    });
-
-    it("calls objectExists with correct parameters", async () => {
-      const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
-      vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: VALID_SIZE });
       vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
       await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
 
-      expect(r2.objectExists).toHaveBeenCalledWith(env, TEST_ORG, TEST_REPO, VALID_OID);
+      expect(r2.objectExists).not.toHaveBeenCalled();
     });
 
-    it("returns 500 error when objectExists throws", async () => {
+    it("calls generateDownloadUrl with correct parameters", async () => {
       const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
-      vi.mocked(r2.objectExists).mockRejectedValue(new Error("R2 service unavailable"));
+      vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
-      const result = await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
+      await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
 
-      expect(result.error).toEqual({ code: 500, message: "Storage service error" });
-      expect(result.actions).toBeUndefined();
+      expect(r2.generateDownloadUrl).toHaveBeenCalledWith(env, TEST_ORG, TEST_REPO, VALID_OID);
     });
 
     it("returns 500 error when generateDownloadUrl throws", async () => {
       const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
-      vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: VALID_SIZE });
       vi.mocked(r2.generateDownloadUrl).mockRejectedValue(new Error("Signing failed"));
 
       const result = await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
@@ -387,7 +356,7 @@ describe("LFS Service", () => {
     const env = createMockEnv();
 
     describe("download operation", () => {
-      it("processes download request with existing objects", async () => {
+      it("processes download request and always returns pre-signed URLs", async () => {
         const request: LFSBatchRequest = {
           operation: "download",
           objects: [
@@ -395,9 +364,6 @@ describe("LFS Service", () => {
             { oid: VALID_OID_2, size: 2048 },
           ],
         };
-        vi.mocked(r2.objectExists)
-          .mockResolvedValueOnce({ exists: true, size: VALID_SIZE })
-          .mockResolvedValueOnce({ exists: true, size: 2048 });
         vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
         const result = await processBatchRequest(env, TEST_ORG, TEST_REPO, request);
@@ -406,27 +372,7 @@ describe("LFS Service", () => {
         expect(result.objects).toHaveLength(2);
         expect(result.objects.at(0)?.actions?.download).toBeDefined();
         expect(result.objects.at(1)?.actions?.download).toBeDefined();
-      });
-
-      it("handles mixed existing and missing objects", async () => {
-        const request: LFSBatchRequest = {
-          operation: "download",
-          objects: [
-            { oid: VALID_OID, size: VALID_SIZE },
-            { oid: VALID_OID_2, size: 2048 },
-          ],
-        };
-        vi.mocked(r2.objectExists)
-          .mockResolvedValueOnce({ exists: true, size: VALID_SIZE })
-          .mockResolvedValueOnce({ exists: false });
-        vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
-
-        const result = await processBatchRequest(env, TEST_ORG, TEST_REPO, request);
-
-        expect(result.objects.at(0)?.actions?.download).toBeDefined();
-        expect(result.objects.at(0)?.error).toBeUndefined();
-        expect(result.objects.at(1)?.error?.code).toBe(404);
-        expect(result.objects.at(1)?.actions).toBeUndefined();
+        expect(r2.objectExists).not.toHaveBeenCalled();
       });
     });
 
@@ -465,7 +411,6 @@ describe("LFS Service", () => {
           operation: "download",
           objects: [{ oid: VALID_OID, size: VALID_SIZE }],
         };
-        vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: VALID_SIZE });
         vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
         const result = await processBatchRequest(env, TEST_ORG, TEST_REPO, request);
@@ -479,7 +424,6 @@ describe("LFS Service", () => {
           hash_algo: "sha256",
           objects: [{ oid: VALID_OID, size: VALID_SIZE }],
         };
-        vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: VALID_SIZE });
         vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
         const result = await processBatchRequest(env, TEST_ORG, TEST_REPO, request);
@@ -495,9 +439,6 @@ describe("LFS Service", () => {
             { oid: VALID_OID_2, size: 2048 },
           ],
         };
-        vi.mocked(r2.objectExists)
-          .mockResolvedValueOnce({ exists: true, size: VALID_SIZE })
-          .mockResolvedValueOnce({ exists: true, size: 2048 });
         vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
         const result = await processBatchRequest(env, TEST_ORG, TEST_REPO, request);
@@ -508,40 +449,24 @@ describe("LFS Service", () => {
     });
 
     describe("per-object error handling", () => {
-      it("does not fail batch for individual object errors", async () => {
+      it("does not fail upload batch for individual object errors", async () => {
         const request: LFSBatchRequest = {
-          operation: "download",
+          operation: "upload",
           objects: [
             { oid: VALID_OID, size: VALID_SIZE },
             { oid: VALID_OID_2, size: 2048 },
           ],
         };
         vi.mocked(r2.objectExists)
-          .mockResolvedValueOnce({ exists: false })
-          .mockResolvedValueOnce({ exists: true, size: 2048 });
-        vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
+          .mockResolvedValueOnce({ exists: true, size: 9999 }) // size mismatch = error
+          .mockResolvedValueOnce({ exists: false }); // new object = upload action
+        vi.mocked(r2.generateUploadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
         const result = await processBatchRequest(env, TEST_ORG, TEST_REPO, request);
 
         expect(result.transfer).toBe("basic");
-        expect(result.objects.at(0)?.error?.code).toBe(404);
-        expect(result.objects.at(1)?.actions?.download).toBeDefined();
-      });
-
-      it("handles all objects missing gracefully", async () => {
-        const request: LFSBatchRequest = {
-          operation: "download",
-          objects: [
-            { oid: VALID_OID, size: VALID_SIZE },
-            { oid: VALID_OID_2, size: 2048 },
-          ],
-        };
-        vi.mocked(r2.objectExists).mockResolvedValue({ exists: false });
-
-        const result = await processBatchRequest(env, TEST_ORG, TEST_REPO, request);
-
-        expect(result.objects.at(0)?.error?.code).toBe(404);
-        expect(result.objects.at(1)?.error?.code).toBe(404);
+        expect(result.objects.at(0)?.error?.code).toBe(422);
+        expect(result.objects.at(1)?.actions?.upload).toBeDefined();
       });
     });
 
@@ -555,7 +480,6 @@ describe("LFS Service", () => {
           objects: [{ oid: VALID_OID, size: VALID_SIZE }],
         };
         if (operation === "download") {
-          vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: VALID_SIZE });
           vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
         } else {
           vi.mocked(r2.objectExists).mockResolvedValue({ exists: false });
@@ -574,7 +498,6 @@ describe("LFS Service", () => {
           operation: "download",
           objects: [{ oid: VALID_OID, size: VALID_SIZE }],
         };
-        vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: VALID_SIZE });
         vi.mocked(r2.generateDownloadUrl).mockResolvedValue(MOCK_SIGNED_URL);
 
         const result = await processBatchRequest(customEnv, TEST_ORG, TEST_REPO, request);

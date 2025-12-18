@@ -49,25 +49,8 @@ export async function processDownloadObject(
   repo: string,
   obj: LFSObjectRequest
 ): Promise<LFSObjectResponse> {
+  // Skip HEAD check for performance - clients handle 404s from R2 directly
   try {
-    const result = await objectExists(env, org, repo, obj.oid);
-
-    if (!result.exists) {
-      return {
-        oid: obj.oid,
-        size: obj.size,
-        error: { code: 404, message: "Object not found" },
-      };
-    }
-
-    if (result.size !== obj.size) {
-      return {
-        oid: obj.oid,
-        size: obj.size,
-        error: { code: 422, message: "Object size mismatch" },
-      };
-    }
-
     const url = await generateDownloadUrl(env, org, repo, obj.oid);
 
     return {
