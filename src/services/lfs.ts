@@ -37,7 +37,7 @@ export function validateBatchRequest(request: LFSBatchRequest): ValidationResult
   }
 
   if (request.hash_algo !== undefined && request.hash_algo !== "sha256") {
-    return { valid: false, error: "Only sha256 hash algorithm is supported", status: 422 };
+    return { valid: false, error: "Only sha256 hash algorithm is supported", status: 409 };
   }
 
   return { valid: true };

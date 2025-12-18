@@ -194,7 +194,7 @@ describe("LFS Service", () => {
         ["sha1", "sha1"],
         ["empty string", ""],
         ["arbitrary string", "invalid"],
-      ])("rejects %s hash algorithm", (_, hashAlgo) => {
+      ])("rejects %s hash algorithm with status 409", (_, hashAlgo) => {
         const request: LFSBatchRequest = {
           operation: "download",
           objects: [{ oid: VALID_OID, size: VALID_SIZE }],
@@ -203,6 +203,7 @@ describe("LFS Service", () => {
         const result = validateBatchRequest(request);
         expect(result.valid).toBe(false);
         expect(result.error).toContain("sha256");
+        expect(result.status).toBe(409);
       });
 
       it("accepts undefined hash_algo (defaults to sha256)", () => {
