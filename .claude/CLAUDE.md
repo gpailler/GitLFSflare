@@ -277,7 +277,6 @@ if (response.status === 404) {
 | `R2_ACCESS_KEY_ID` | string (secret) | R2 credentials | Auto-generated |
 | `R2_SECRET_ACCESS_KEY` | string (secret) | R2 credentials | Auto-generated |
 | `R2_BUCKET_NAME` | string | R2 bucket name | `lfs-objects-staging` or `lfs-objects-production` |
-| `ENVIRONMENT` | string | Deployment environment | `staging` or `production` |
 
 ## Common Patterns
 
