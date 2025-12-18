@@ -299,11 +299,11 @@ async function handleBatchRequest(
 ```typescript
 // ✅ Pure functions, no classes
 export const parseAuthHeader = (header: string) => { ... };
-export const validateToken = (token: string) => { ... };
+export const validateTokenFormat = (token: string) => { ... };
 export const extractToken = (request: Request) => {
   const header = request.headers.get("Authorization");
   const parsed = parseAuthHeader(header);
-  return parsed ? validateToken(parsed.token) : null;
+  return parsed ? validateTokenFormat(parsed.token) : null;
 };
 ```
 
@@ -334,10 +334,10 @@ pnpm lint:fix
 pnpm test:coverage
 
 # Deploy to staging environment
-pnpm run deploy:staging
+pnpm run deploy
 
 # Deploy to production environment
-pnpm run deploy:prod
+pnpm run deploy:production
 ```
 
 ### Testing Deployed Service (Staging Only)
