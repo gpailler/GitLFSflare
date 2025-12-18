@@ -1,5 +1,11 @@
 import type { PermissionLevel } from "../types/index.js";
 
+const VALID_PERMISSIONS: readonly PermissionLevel[] = ["admin", "write", "read", "none"];
+
+export function isValidPermission(value: string | null): value is PermissionLevel {
+  return value !== null && VALID_PERMISSIONS.includes(value as PermissionLevel);
+}
+
 export async function hashToken(token: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(token);
@@ -21,7 +27,7 @@ export async function getCachedPermission(
 ): Promise<PermissionLevel | null> {
   const key = await generateCacheKey(token, org, repo);
   const cached = await env.AUTH_CACHE.get(key);
-  return cached as PermissionLevel | null;
+  return isValidPermission(cached) ? cached : null;
 }
 
 export async function setCachedPermission(

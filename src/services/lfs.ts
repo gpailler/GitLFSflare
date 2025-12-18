@@ -49,37 +49,45 @@ export async function processDownloadObject(
   repo: string,
   obj: LFSObjectRequest
 ): Promise<LFSObjectResponse> {
-  const result = await objectExists(env, org, repo, obj.oid);
+  try {
+    const result = await objectExists(env, org, repo, obj.oid);
 
-  if (!result.exists) {
+    if (!result.exists) {
+      return {
+        oid: obj.oid,
+        size: obj.size,
+        error: { code: 404, message: "Object not found" },
+      };
+    }
+
+    if (result.size !== obj.size) {
+      return {
+        oid: obj.oid,
+        size: obj.size,
+        error: { code: 422, message: "Object size mismatch" },
+      };
+    }
+
+    const url = await generateDownloadUrl(env, org, repo, obj.oid);
+
     return {
       oid: obj.oid,
       size: obj.size,
-      error: { code: 404, message: "Object not found" },
-    };
-  }
-
-  if (result.size !== obj.size) {
-    return {
-      oid: obj.oid,
-      size: obj.size,
-      error: { code: 422, message: "Object size mismatch" },
-    };
-  }
-
-  const url = await generateDownloadUrl(env, org, repo, obj.oid);
-
-  return {
-    oid: obj.oid,
-    size: obj.size,
-    authenticated: true,
-    actions: {
-      download: {
-        href: url,
-        expires_in: env.URL_EXPIRY,
+      authenticated: true,
+      actions: {
+        download: {
+          href: url,
+          expires_in: env.URL_EXPIRY,
+        },
       },
-    },
-  };
+    };
+  } catch {
+    return {
+      oid: obj.oid,
+      size: obj.size,
+      error: { code: 500, message: "Storage service error" },
+    };
+  }
 }
 
 export async function processUploadObject(
@@ -88,36 +96,44 @@ export async function processUploadObject(
   repo: string,
   obj: LFSObjectRequest
 ): Promise<LFSObjectResponse> {
-  const result = await objectExists(env, org, repo, obj.oid);
+  try {
+    const result = await objectExists(env, org, repo, obj.oid);
 
-  if (result.exists) {
-    if (result.size === obj.size) {
+    if (result.exists) {
+      if (result.size === obj.size) {
+        return {
+          oid: obj.oid,
+          size: obj.size,
+          authenticated: true,
+        };
+      }
       return {
         oid: obj.oid,
         size: obj.size,
-        authenticated: true,
+        error: { code: 422, message: "Object size mismatch" },
       };
     }
+
+    const url = await generateUploadUrl(env, org, repo, obj.oid);
+
     return {
       oid: obj.oid,
       size: obj.size,
-      error: { code: 422, message: "Object size mismatch" },
+      authenticated: true,
+      actions: {
+        upload: {
+          href: url,
+          expires_in: env.URL_EXPIRY,
+        },
+      },
+    };
+  } catch {
+    return {
+      oid: obj.oid,
+      size: obj.size,
+      error: { code: 500, message: "Storage service error" },
     };
   }
-
-  const url = await generateUploadUrl(env, org, repo, obj.oid);
-
-  return {
-    oid: obj.oid,
-    size: obj.size,
-    authenticated: true,
-    actions: {
-      upload: {
-        href: url,
-        expires_in: env.URL_EXPIRY,
-      },
-    },
-  };
 }
 
 export async function processBatchRequest(

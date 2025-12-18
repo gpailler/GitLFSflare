@@ -285,6 +285,26 @@ describe("LFS Service", () => {
 
       expect(r2.objectExists).toHaveBeenCalledWith(env, TEST_ORG, TEST_REPO, VALID_OID);
     });
+
+    it("returns 500 error when objectExists throws", async () => {
+      const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
+      vi.mocked(r2.objectExists).mockRejectedValue(new Error("R2 service unavailable"));
+
+      const result = await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
+
+      expect(result.error).toEqual({ code: 500, message: "Storage service error" });
+      expect(result.actions).toBeUndefined();
+    });
+
+    it("returns 500 error when generateDownloadUrl throws", async () => {
+      const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
+      vi.mocked(r2.objectExists).mockResolvedValue({ exists: true, size: VALID_SIZE });
+      vi.mocked(r2.generateDownloadUrl).mockRejectedValue(new Error("Signing failed"));
+
+      const result = await processDownloadObject(env, TEST_ORG, TEST_REPO, obj);
+
+      expect(result.error).toEqual({ code: 500, message: "Storage service error" });
+    });
   });
 
   describe("processUploadObject", () => {
@@ -340,6 +360,26 @@ describe("LFS Service", () => {
       await processUploadObject(env, TEST_ORG, TEST_REPO, obj);
 
       expect(r2.objectExists).toHaveBeenCalledWith(env, TEST_ORG, TEST_REPO, VALID_OID);
+    });
+
+    it("returns 500 error when objectExists throws", async () => {
+      const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
+      vi.mocked(r2.objectExists).mockRejectedValue(new Error("R2 service unavailable"));
+
+      const result = await processUploadObject(env, TEST_ORG, TEST_REPO, obj);
+
+      expect(result.error).toEqual({ code: 500, message: "Storage service error" });
+      expect(result.actions).toBeUndefined();
+    });
+
+    it("returns 500 error when generateUploadUrl throws", async () => {
+      const obj: LFSObjectRequest = { oid: VALID_OID, size: VALID_SIZE };
+      vi.mocked(r2.objectExists).mockResolvedValue({ exists: false });
+      vi.mocked(r2.generateUploadUrl).mockRejectedValue(new Error("Signing failed"));
+
+      const result = await processUploadObject(env, TEST_ORG, TEST_REPO, obj);
+
+      expect(result.error).toEqual({ code: 500, message: "Storage service error" });
     });
   });
 

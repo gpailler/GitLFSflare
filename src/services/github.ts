@@ -25,6 +25,26 @@ export function mapGitHubPermissions(permissions: GitHubPermissions): Permission
   return "none";
 }
 
+export function isValidGitHubRepository(data: unknown): data is GitHubRepository {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+  const obj = data as Record<string, unknown>;
+  if (typeof obj.private !== "boolean") {
+    return false;
+  }
+  if (obj.permissions !== undefined) {
+    if (typeof obj.permissions !== "object" || obj.permissions === null) {
+      return false;
+    }
+    const perms = obj.permissions as Record<string, unknown>;
+    if (typeof perms.admin !== "boolean" || typeof perms.push !== "boolean" || typeof perms.pull !== "boolean") {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function hasOperationPermission(permission: PermissionLevel, operation: LFSOperation): boolean {
   if (operation === "download") {
     return permission !== "none";
@@ -69,7 +89,11 @@ export async function getRepositoryPermission(token: string, org: string, repo: 
     throw new Error(`GitHub API error: ${response.status}`);
   }
 
-  const data = (await response.json()) as GitHubRepository;
+  const data: unknown = await response.json();
+
+  if (!isValidGitHubRepository(data)) {
+    throw new Error("GitHub API error: invalid response");
+  }
 
   if (!data.permissions) {
     // Public repos may not include permissions - allow read access

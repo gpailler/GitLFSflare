@@ -27,6 +27,21 @@ function createMockEnv(overrides: Record<string, unknown> = {}): Env {
 }
 
 describe("cache service", () => {
+  describe("isValidPermission", () => {
+    it.each([
+      ["admin", true],
+      ["write", true],
+      ["read", true],
+      ["none", true],
+      ["ADMIN", false],
+      ["invalid", false],
+      ["", false],
+      [null, false],
+    ] as const)("isValidPermission(%s) returns %s", (value, expected) => {
+      expect(cache.isValidPermission(value)).toBe(expected);
+    });
+  });
+
   describe("hashToken", () => {
     it("returns a 64-character hex string (SHA-256)", async () => {
       const hash = await cache.hashToken(TEST_TOKEN);
@@ -85,21 +100,24 @@ describe("cache service", () => {
     });
 
     it.each([
-      ["admin"],
-      ["write"],
-      ["read"],
-      ["none"],
-    ] as const)("retrieves %s permission from cache", async (permission) => {
+      ["admin", "admin"],
+      ["write", "write"],
+      ["read", "read"],
+      ["none", "none"],
+      ["invalid", null],
+      ["ADMIN", null],
+      ["", null],
+    ] as const)("returns %s for cached value '%s'", async (cachedValue, expected) => {
       const store = new Map<string, string>();
       const kv = createMockKV(store);
       const env = createMockEnv({ AUTH_CACHE: kv });
 
       const key = await cache.generateCacheKey(TEST_TOKEN, TEST_ORG, TEST_REPO);
-      store.set(key, permission);
+      store.set(key, cachedValue);
 
       const result = await cache.getCachedPermission(env, TEST_TOKEN, TEST_ORG, TEST_REPO);
 
-      expect(result).toBe(permission);
+      expect(result).toBe(expected);
     });
 
     it("calls KV.get with correct key", async () => {

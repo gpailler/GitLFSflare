@@ -4,8 +4,45 @@ import {
   GitHubRateLimitError,
   getRepositoryPermission,
   hasOperationPermission,
+  isValidGitHubRepository,
   mapGitHubPermissions,
 } from "../../src/services/github.js";
+
+describe("isValidGitHubRepository", () => {
+  describe("valid responses", () => {
+    it.each([
+      ["public repo without permissions", { private: false }],
+      ["private repo without permissions", { private: true }],
+      ["repo with full permissions", { private: true, permissions: { admin: true, push: true, pull: true } }],
+      ["repo with partial permissions", { private: false, permissions: { admin: false, push: false, pull: true } }],
+      ["repo with extra fields", { private: true, id: 123, name: "test", full_name: "org/test" }],
+    ])("returns true for %s", (_, data) => {
+      expect(isValidGitHubRepository(data)).toBe(true);
+    });
+  });
+
+  describe("invalid responses", () => {
+    it.each([
+      ["null", null],
+      ["undefined", undefined],
+      ["string", "not an object"],
+      ["number", 123],
+      ["array", []],
+      ["missing private field", { id: 123 }],
+      ["non-boolean private field", { private: "true" }],
+      ["permissions as null", { private: true, permissions: null }],
+      ["permissions as string", { private: true, permissions: "admin" }],
+      ["permissions missing admin", { private: true, permissions: { push: true, pull: true } }],
+      ["permissions missing push", { private: true, permissions: { admin: true, pull: true } }],
+      ["permissions missing pull", { private: true, permissions: { admin: true, push: true } }],
+      ["permissions with non-boolean admin", { private: true, permissions: { admin: "true", push: true, pull: true } }],
+      ["permissions with non-boolean push", { private: true, permissions: { admin: true, push: "true", pull: true } }],
+      ["permissions with non-boolean pull", { private: true, permissions: { admin: true, push: true, pull: "true" } }],
+    ])("returns false for %s", (_, data) => {
+      expect(isValidGitHubRepository(data)).toBe(false);
+    });
+  });
+});
 
 describe("mapGitHubPermissions", () => {
   it.each([
@@ -172,6 +209,16 @@ describe("getRepositoryPermission", () => {
       );
 
       await expect(getRepositoryPermission("ghp_token", "org", "repo")).rejects.toThrow();
+    });
+
+    it("throws error for invalid response format", async () => {
+      fetchSpy.mockResolvedValueOnce(
+        new Response(JSON.stringify({ unexpected: "format" }), { status: 200 })
+      );
+
+      await expect(getRepositoryPermission("ghp_token", "org", "repo")).rejects.toThrow(
+        "GitHub API error: invalid response"
+      );
     });
 
     it("throws error for network failures", async () => {
