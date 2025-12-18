@@ -60,7 +60,6 @@
 ### Phase 7: Documentation
 - [ ] README.md
 - [ ] docs/ARCHITECTURE.md
-- [ ] docs/API.md
 - [ ] docs/DEPLOYMENT.md
 - [ ] docs/CONTRIBUTING.md
 - [ ] **User checkpoint: Approved to proceed**

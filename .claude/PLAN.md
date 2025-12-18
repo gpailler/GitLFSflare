@@ -57,7 +57,6 @@ project-root/
 │       └── test-git-lfs.sh
 ├── docs/
 │   ├── ARCHITECTURE.md
-│   ├── API.md
 │   ├── DEPLOYMENT.md
 │   └── CONTRIBUTING.md
 ├── .claude/
@@ -406,7 +405,6 @@ This file maintains continuity across sessions. Always read it at the start of a
 **Files to create**:
 - `README.md` - Project overview, quick start, usage
 - `docs/ARCHITECTURE.md` - System design, data flow, decisions
-- `docs/API.md` - LFS Batch API details, examples
 - `docs/DEPLOYMENT.md` - CloudFlare deployment guide (staging and production)
 - `docs/CONTRIBUTING.md` - Development guide, testing
 
@@ -429,14 +427,6 @@ This file maintains continuity across sessions. Always read it at the start of a
 - Design decisions
 - Security model
 - Performance considerations (including caching)
-
-#### API.md
-- Health endpoint (with environment info)
-- LFS Batch API endpoint
-- Request/response examples
-- Error codes
-- Authentication
-- Rate limits (GitHub API with caching)
 
 #### DEPLOYMENT.md
 - Prerequisites
