@@ -276,7 +276,7 @@ if (response.status === 404) {
 | `CLOUDFLARE_ACCOUNT_ID` | string (secret) | For R2 endpoint URL | From Cloudflare dashboard |
 | `R2_ACCESS_KEY_ID` | string (secret) | R2 credentials | Auto-generated |
 | `R2_SECRET_ACCESS_KEY` | string (secret) | R2 credentials | Auto-generated |
-| `R2_BUCKET_NAME` | string | R2 bucket name | `lfs-objects-staging` or `lfs-objects-production` |
+| `R2_BUCKET_NAME` | string | R2 bucket name (must match `LFS_BUCKET` binding) | `lfs-objects-staging` or `lfs-objects-production` |
 
 ## Common Patterns
 
