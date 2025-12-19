@@ -51,6 +51,6 @@ jobs:
           mv wrangler.json wrangler.jsonc
 
       - name: Deploy to Staging
-        run: pnpm deploy
+        run: pnpm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_DEPLOY_API_TOKEN }}
