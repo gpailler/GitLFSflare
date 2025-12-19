@@ -12,6 +12,10 @@ A production-ready Git LFS server running on Cloudflare Workers with R2 storage.
 - **Multi-Organization** - Support multiple GitHub organizations
 - **Git LFS Spec Compliant** - Full Batch API implementation (Lock API not supported)
 
+## Why GitLFSflare?
+
+Cloudflare R2 has **zero egress fees** - store and serve large files without bandwidth costs. Unlike GitHub LFS (which charges for storage and bandwidth) or self-hosted solutions (which require infrastructure), GitLFSflare gives you unlimited downloads at a fixed storage cost.
+
 ## Quick Start
 
 ```bash
