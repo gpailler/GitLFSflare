@@ -23,72 +23,91 @@ pnpm test
 
 See [Deployment Guide](docs/DEPLOYMENT.md) for full setup and deployment instructions.
 
-## Configuration
-
-Configure your Worker in `wrangler.jsonc`:
-
-```jsonc
-{
-  "vars": {
-    "ALLOWED_ORGS": "your-org,another-org",
-    "R2_BUCKET_NAME": "lfs-objects-staging"
-  }
-}
-```
-
-Set secrets via Wrangler:
-
-```bash
-wrangler secret put CLOUDFLARE_ACCOUNT_ID
-wrangler secret put R2_ACCESS_KEY_ID
-wrangler secret put R2_SECRET_ACCESS_KEY
-```
-
-See [Deployment Guide](docs/DEPLOYMENT.md) for full setup instructions.
-
 ## Usage
 
-### Git LFS Client Configuration
+Configure your local git repository to use your deployed LFS server.
+
+### 1. Set LFS URL
 
 ```bash
-# Set the LFS endpoint
-git config lfs.url https://your-worker.workers.dev/your-org/your-repo.git/info/lfs
-
-# Configure authentication (use GitHub PAT as password)
-git config lfs.https://your-worker.workers.dev/.access basic
+cd your-repo
+git config lfs.url https://gitlfsflare.your-account.workers.dev/your-org/your-repo.git/info/lfs
 ```
 
-Or add to `.lfsconfig`:
+Or add to `.lfsconfig` in your repository:
 
 ```ini
 [lfs]
-    url = https://your-worker.workers.dev/your-org/your-repo.git/info/lfs
+    url = https://gitlfsflare.your-account.workers.dev/your-org/your-repo.git/info/lfs
 ```
 
-### GitHub Token Setup
+### 2. Configure Authentication
 
-Create a GitHub Personal Access Token using one of these methods:
+Git LFS uses HTTP Basic authentication. The LFS URL path (`/your-org/your-repo.git/info/lfs`) determines which GitHub repository permissions are checked:
 
-**Option 1: Fine-grained token (recommended)**
-1. Go to GitHub Settings > Developer settings > Personal access tokens > Fine-grained tokens
-2. Generate new token with:
-   - **Repository access**: Select "Only select repositories" and choose the repositories you need
-   - **Permissions**: Metadata (read-only) - this is sufficient for repository permission checks
-3. Use the token as password when Git prompts for credentials
+1. **Organization check**: The server verifies the org is in its allowed organizations list
+2. **Permission check**: Your GitHub token is validated against the GitHub API to check your permissions on `your-org/your-repo`
+3. **Action authorization**: Downloads require read access, uploads require write access
 
-**Option 2: Classic token**
-1. Go to GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)
-2. Generate new token with `repo` scope
-3. Use the token as password when Git prompts for credentials
+This mirrors GitHub's permission model - if you can push to a repo on GitHub, you can upload LFS objects for that repo.
 
-Supported token formats: `ghp_*`, `github_pat_*`, `ghs_*`
+**Option A: Credential Helper (Recommended)**
 
-## API Endpoints
+Store credentials securely using git's credential helper:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-| `/:org/:repo.git/info/lfs/objects/batch` | POST | LFS Batch API |
+```bash
+# Enable credential storage (stores in ~/.git-credentials)
+git config credential.helper store
+
+# Or use macOS Keychain
+git config credential.helper osxkeychain
+
+# Or use Windows Credential Manager
+git config credential.helper manager
+```
+
+On first `git lfs push` or `git lfs pull`, git will prompt for credentials:
+- **Username**: any value (e.g., `git` or your GitHub username)
+- **Password**: your GitHub Personal Access Token (PAT)
+
+**Option B: URL with Embedded Credentials**
+
+For automation/CI, embed credentials directly (less secure):
+
+```bash
+git config lfs.url https://git:ghp_yourtoken@your-worker.workers.dev/your-org/your-repo.git/info/lfs
+```
+
+### 3. GitHub Token Requirements
+
+The server validates tokens against the GitHub API to check repository permissions.
+
+**Fine-grained Personal Access Token**
+- Prefix: `github_pat_*`
+- Create at: https://github.com/settings/personal-access-tokens
+- Required permissions:
+  - **Repository access**: Select specific repositories or all repositories
+  - **Metadata**: Read-Only
+
+**Classic Personal Access Token (PAT)**
+- Prefix: `ghp_*`
+- Create at: https://github.com/settings/tokens
+- Required scope: `repo` (full access to private repositories)
+
+**GitHub Actions Token**
+- Prefix: `ghs_*`
+- Automatically available as `GITHUB_TOKEN` in workflows
+- Permissions inherited from workflow configuration
+
+### 4. Verify Configuration
+
+```bash
+# Check LFS configuration
+git lfs env
+
+# Test with a push (if you have files tracked)
+git lfs push origin main --dry-run
+```
 
 ## Documentation
 

@@ -350,13 +350,36 @@ pnpm run deploy
 pnpm run deploy:production
 ```
 
-### Testing Deployed Service (Staging Only)
-```bash
-# Run endpoint tests against staging (never production)
-bash test/scripts/test-endpoints.sh
+### Testing Deployed Service (Python 3 Required)
 
-# Run end-to-end Git LFS tests against staging (16MB upload/download round-trip)
-bash test/scripts/test-git-lfs.sh
+#### Endpoint Tests (`test_endpoints.py`)
+Tests API endpoints without file transfers:
+- Health check, authentication (401), organization validation (403)
+- Batch request validation (422 for invalid operation/OID/empty objects, 409 for unsupported hash_algo, 413 for batch size limit)
+- Download batch response (200 with pre-signed URL)
+- Repository name validation (400)
+
+```bash
+# Basic tests (no token required)
+python3 test/scripts/test_endpoints.py --url "https://your-worker.workers.dev"
+
+# Full test coverage (requires valid token)
+python3 test/scripts/test_endpoints.py --url "..." --token "ghp_xxx" --org "your-org" --repo "your-repo"
+```
+
+#### E2E Git LFS Tests (`test_git_lfs.py`)
+Full upload/download round-trip using local git repositories:
+- Creates local bare repo as "remote" (no GitHub dependency)
+- Configures git-lfs to use the deployed LFS server
+- Tests 6 files (~5MB total): 1MB×2, 512KB, 2MB, 64KB, plus duplicate content file
+- Verifies OID deduplication (duplicate file shares same OID)
+- Hash verification on download
+
+```bash
+python3 test/scripts/test_git_lfs.py --url "..." --token "ghp_xxx" --org "your-org" --repo "your-repo"
+
+# Keep temp directories for debugging
+python3 test/scripts/test_git_lfs.py --url "..." --token "ghp_xxx" --org "your-org" --repo "your-repo" --keep
 ```
 
 ## Critical Reminders
