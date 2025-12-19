@@ -7,7 +7,8 @@ export default defineWorkersConfig({
     exclude: ["node_modules", "dist"],
     coverage: {
       provider: "istanbul",
-      reporter: ["text", "json", "html"],
+      reporter: ["text", "json", "json-summary", "html"],
+      reportOnFailure: true,
       include: ["src/**/*.ts"],
       exclude: ["src/**/*.d.ts", "src/types/**/*.ts"],
       thresholds: {
