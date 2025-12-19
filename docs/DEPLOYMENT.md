@@ -5,12 +5,11 @@
 - [Node.js](https://nodejs.org/) 20+
 - [pnpm](https://pnpm.io/) 10+
 - [Python](https://www.python.org/) 3.10+ (for E2E tests)
-- Cloudflare account with:
-  - Workers enabled
-  - R2 enabled
-  - KV enabled
+- Cloudflare account with Workers, R2, and KV enabled
 
 ## Cloudflare Setup
+
+> **Note**: All wrangler commands below can also be performed via the [Cloudflare Dashboard](https://dash.cloudflare.com).
 
 ### 1. Install Dependencies
 
@@ -24,136 +23,154 @@ pnpm install
 pnpm wrangler login
 ```
 
-This opens a browser to authenticate with your Cloudflare account.
-
 ### 3. Create R2 Buckets
 
-Create separate buckets for staging and production:
-
 ```bash
-# Staging bucket
 pnpm wrangler r2 bucket create lfs-objects-staging
-
-# Production bucket
 pnpm wrangler r2 bucket create lfs-objects-production
 ```
 
 ### 4. Create KV Namespaces
 
-Create KV namespaces for permission caching:
-
 ```bash
-# Staging namespace
 pnpm wrangler kv namespace create lfs-auth-cache-staging
-# Replace the staging kv_namespaces ID in wrangler.jsonc
-
-# Production namespace
 pnpm wrangler kv namespace create lfs-auth-cache-production
-# Replace the production kv_namespaces ID in wrangler.jsonc
 ```
 
-### 5. Customize Configuration
+Note the namespace IDs from the output - you'll need them later.
 
-Update `wrangler.jsonc` with your actual values for:
+### 5. Generate R2 API Credentials
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ALLOWED_ORGS` | Comma-separated GitHub orgs | Required |
-| `URL_EXPIRY` | Pre-signed URL lifetime (seconds) | `900` |
-| `AUTH_CACHE_TTL` | Permission cache TTL (seconds) | `300` |
-
-### 6. Generate R2 API Credentials
-
-1. Go to Cloudflare Dashboard > R2 object storage > Manage API Tokens
-2. Create account API token with:
-   - Permissions: Object Read & Write
-   - Scope: Apply to specific buckets (select both staging and production)
-3. Set the secrets Access Key ID and Secret Access Key below
+1. Go to Cloudflare Dashboard → R2 → Manage R2 API Tokens
+2. Create token with Object Read & Write permissions
+3. Set the secrets:
 
 ```bash
-# Staging secrets
+# Staging
 pnpm wrangler secret put R2_ACCESS_KEY_ID --env ""
 pnpm wrangler secret put R2_SECRET_ACCESS_KEY --env ""
 
-# Production secrets
+# Production
 pnpm wrangler secret put R2_ACCESS_KEY_ID --env production
 pnpm wrangler secret put R2_SECRET_ACCESS_KEY --env production
 ```
 
-### 7. Get Account ID
+### 6. Set Account ID
 
-1. Go to Cloudflare Dashboard > Workers & Pages
+1. Go to Cloudflare Dashboard → Workers & Pages
 2. Copy your Account ID from the right sidebar
+3. Set the secret:
 
 ```bash
-# Staging secrets
+# Staging
 pnpm wrangler secret put CLOUDFLARE_ACCOUNT_ID --env ""
 
-# Production secrets
+# Production
 pnpm wrangler secret put CLOUDFLARE_ACCOUNT_ID --env production
 ```
 
-## Deployment
+---
+
+## Option A: Manual Deployment
+
+For manual deployment, configure values directly in `wrangler.jsonc`:
+
+### 1. Update Configuration
+
+Edit `wrangler.jsonc`:
+
+```jsonc
+{
+  // Staging (default environment)
+  "kv_namespaces": [{ "binding": "AUTH_CACHE", "id": "<your-staging-kv-id>" }],
+  "vars": { "ALLOWED_ORGS": "org1,org2" },
+
+  // Production
+  "env": {
+    "production": {
+      "kv_namespaces": [{ "binding": "AUTH_CACHE", "id": "<your-production-kv-id>" }],
+      "vars": { "ALLOWED_ORGS": "org1" }
+    }
+  }
+}
+```
+
+### 2. Deploy
 
 ```bash
-# Deploy to staging
-pnpm run deploy
-
-# Deploy to production
-pnpm run deploy:production
+pnpm deploy              # Staging
+pnpm deploy:production   # Production
 ```
+
+---
+
+## Option B: CI/CD Deployment (GitHub Actions)
+
+For automated deployment, configuration is stored in GitHub environments.
+
+### 1. Add Repository Secret
+
+In GitHub: Settings → Secrets and variables → Actions → New repository secret
+
+| Secret | Description |
+|--------|-------------|
+| `CLOUDFLARE_DEPLOY_API_TOKEN` | Cloudflare API token with Workers/KV/R2 edit permissions |
+
+To create the token:
+1. Go to [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+2. Use **"Edit Cloudflare Workers"** template
+
+### 2. Create GitHub Environments
+
+In GitHub: Settings → Environments → New environment
+
+Create `staging` and `production` environments with these variables:
+
+| Variable | Description |
+|----------|-------------|
+| `ALLOWED_ORGS` | Comma-separated GitHub organizations |
+| `KV_NAMESPACE_ID` | KV namespace ID from step 4 above |
+
+### 3. Workflows
+
+| Workflow | Trigger | Action |
+|----------|---------|--------|
+| CI | Pull request to main | Run tests, post coverage report |
+| Deploy Staging | Push to main | Deploy to staging |
+| Deploy Production | Push tag `v*` | Deploy to production |
+
+---
 
 ## Verification
 
 ### Health Check
 
 ```bash
-curl https://gitlfsflare.your-account.workers.dev/health
-```
-
-Expected response:
-```json
-{"status":"ok"}
+curl https://gitlfsflare.<your-subdomain>.workers.dev/health
 ```
 
 ### E2E Tests
 
-Run the automated test scripts against your deployed instance:
-
 ```bash
 python3 test/scripts/test_endpoints.py \
-  --url "https://gitlfsflare.your-account.workers.dev" \
-  --token "ghp_your_token" \
-  --org "your-org" \
-  --repo "your-repo"
+  --url "https://gitlfsflare.<your-subdomain>.workers.dev" \
+  --token "ghp_xxx" --org "your-org" --repo "your-repo"
 
 python3 test/scripts/test_git_lfs.py \
-  --url "https://gitlfsflare.your-account.workers.dev" \
-  --token "ghp_your_token" \
-  --org "your-org" \
-  --repo "your-repo"
+  --url "https://gitlfsflare.<your-subdomain>.workers.dev" \
+  --token "ghp_xxx" --org "your-org" --repo "your-repo"
 ```
 
 ## Monitoring
 
-### Worker Analytics
-
-View request metrics in Cloudflare Dashboard:
-- Workers & Pages > your worker > Analytics
-
-### R2 Metrics
-
-View storage metrics in:
-- R2 > your bucket > Metrics
-
 ### Logs
 
-View real-time logs:
-
 ```bash
-# Staging
-pnpm wrangler tail
-
-# Production
-pnpm wrangler tail --env production
+pnpm wrangler tail              # Staging
+pnpm wrangler tail --env production   # Production
 ```
+
+### Dashboards
+
+- **Worker Analytics**: Cloudflare Dashboard → Workers & Pages → gitlfsflare → Analytics
+- **R2 Metrics**: Cloudflare Dashboard → R2 → your bucket → Metrics
