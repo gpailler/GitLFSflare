@@ -1,5 +1,9 @@
 # GitLFSflare
 
+[![Build](https://github.com/gpailler/GitLFSflare/actions/workflows/deploy-staging.yml/badge.svg)](https://github.com/gpailler/GitLFSflare/actions/workflows/deploy-staging.yml)
+[![Version](https://img.shields.io/github/package-json/v/gpailler/GitLFSflare)](package.json)
+[![Coverage](https://codecov.io/gh/gpailler/GitLFSflare/graph/badge.svg)](https://codecov.io/gh/gpailler/GitLFSflare)
+
 A production-ready Git LFS server running on Cloudflare Workers with R2 storage. Authenticates via GitHub API and generates pre-signed URLs for direct client-to-R2 transfers.
 
 ## Features
