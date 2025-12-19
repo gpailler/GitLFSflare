@@ -1,6 +1,6 @@
 {
   "name": "gitlfsflare",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "description": "Git LFS server on Cloudflare Workers with R2 storage",
   "type": "module",
   "scripts": {
