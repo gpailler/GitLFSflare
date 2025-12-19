@@ -123,10 +123,13 @@ def main():
         run(f"git config lfs.url {lfs_url}", cwd=push_dir)
         run(f"git config lfs.{lfs_url}.access basic", cwd=push_dir)
 
-        # Store credentials for LFS
+        # Store credentials for LFS (full path for useHttpPath)
+        run("git config credential.useHttpPath true", cwd=push_dir)
         cred_file = os.path.join(push_dir, ".git-credentials")
+        # Store credential with full LFS path
+        lfs_cred_url = f"https://user:{args.token}@{lfs_host}/{args.org}/{args.repo}.git/info/lfs"
         with open(cred_file, "w") as f:
-            f.write(f"https://user:{args.token}@{lfs_host}\n")
+            f.write(f"{lfs_cred_url}\n")
         run(f"git config credential.helper 'store --file={cred_file}'", cwd=push_dir)
 
         success(f"git-lfs configured with URL: {lfs_url}")
@@ -193,9 +196,10 @@ def main():
         run("git lfs install --local", cwd=clone_dir, capture=True)
         run(f"git config lfs.url {lfs_url}", cwd=clone_dir)
         run(f"git config lfs.{lfs_url}.access basic", cwd=clone_dir)
+        run("git config credential.useHttpPath true", cwd=clone_dir)
         clone_cred_file = os.path.join(clone_dir, ".git-credentials")
         with open(clone_cred_file, "w") as f:
-            f.write(f"https://user:{args.token}@{lfs_host}\n")
+            f.write(f"{lfs_cred_url}\n")
         run(f"git config credential.helper 'store --file={clone_cred_file}'", cwd=clone_dir)
         success("Clone ready")
 
