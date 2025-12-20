@@ -1,8 +1,8 @@
-# GitLFSflare
+# gitLFSflare
 
-[![Build](https://github.com/gpailler/GitLFSflare/actions/workflows/deploy-staging.yml/badge.svg)](https://github.com/gpailler/GitLFSflare/actions/workflows/deploy-staging.yml)
-[![Version](https://img.shields.io/github/package-json/v/gpailler/GitLFSflare)](package.json)
-[![Coverage](https://codecov.io/gh/gpailler/GitLFSflare/graph/badge.svg)](https://codecov.io/gh/gpailler/GitLFSflare)
+[![Build](https://github.com/gpailler/gitLFSflare/actions/workflows/deploy-staging.yml/badge.svg)](https://github.com/gpailler/gitLFSflare/actions/workflows/deploy-staging.yml)
+[![Version](https://img.shields.io/github/package-json/v/gpailler/gitLFSflare)](package.json)
+[![Coverage](https://codecov.io/gh/gpailler/gitLFSflare/graph/badge.svg)](https://codecov.io/gh/gpailler/gitLFSflare)
 
 A production-ready Git LFS server running on Cloudflare Workers with R2 storage. Authenticates via GitHub API and generates pre-signed URLs for direct client-to-R2 transfers.
 
@@ -16,9 +16,9 @@ A production-ready Git LFS server running on Cloudflare Workers with R2 storage.
 - **Multi-Organization** - Support multiple GitHub organizations
 - **Git LFS Spec Compliant** - Full Batch API implementation (Lock API not supported)
 
-## Why GitLFSflare?
+## Why gitLFSflare?
 
-Cloudflare R2 has **zero egress fees** - store and serve large files without bandwidth costs. Unlike GitHub LFS (which charges for storage and bandwidth) or self-hosted solutions (which require infrastructure), GitLFSflare gives you unlimited downloads at a fixed storage cost.
+Cloudflare R2 has **zero egress fees** - store and serve large files without bandwidth costs. Unlike GitHub LFS (which charges for storage and bandwidth) or self-hosted solutions (which require infrastructure), gitLFSflare gives you unlimited downloads at a fixed storage cost.
 
 ## Quick Start
 

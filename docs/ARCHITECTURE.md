@@ -2,7 +2,7 @@
 
 ## Overview
 
-GitLFSflare is a Git LFS server built on Cloudflare Workers that uses R2 for object storage. It authenticates users via GitHub API and generates pre-signed URLs for direct client-to-R2 transfers.
+gitLFSflare is a Git LFS server built on Cloudflare Workers that uses R2 for object storage. It authenticates users via GitHub API and generates pre-signed URLs for direct client-to-R2 transfers.
 
 ## System Design
 
